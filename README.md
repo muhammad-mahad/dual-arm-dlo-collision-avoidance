@@ -1,22 +1,18 @@
-# Safe Dual-Arm Cable Routing with Deformable Linear Objects: Hierarchical Planning and Contact-Aware Control Barrier Functions
+# Dual-Arm Franka Panda with Collision Avoidance in MuJoCo
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+A demonstration of dual-arm bimanual manipulation with real-time collision
+avoidance using two Franka Emika Panda robots in the MuJoCo physics simulator.
 
-**Official repository:** [https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance.git](https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance.git)
-
-A demonstration of dual-arm bimanual manipulation acting as the computational testbed for my Master's thesis on **Collision Avoidance in Dual-Arm Manipulation of Deformable Linear Objects (DLOs)** in the MuJoCo physics simulator.
-
-![Demo Screenshot](docs/figures/demo_screenshot.png)
-![Demo Animation](media/demo_preview.gif)
+![Demo Screenshot](screenshot.png)
 
 ## Features
 
-- **Dual Franka Emika Panda arms** performing coordinated pick-and-lift via precise simulation.
-- **Real-time collision avoidance and kinematics** using constrained differential IK (`mink`).
-- **Contact-aware handover** via distance-threshold sensing using MuJoCo sites.
-- **Smooth motion interpolation** for millimeter-scale carrying and precise placement without violating physics bounds.
-- **Freeze-based gripper isolation**, accurately managing asymmetric active/frozen control across the 14-DoF setup.
-- **Zero collisions** during execution.
+- **Dual Franka Emika Panda arms** performing coordinated pick-and-lift
+- **Real-time collision avoidance** using differential IK with safety constraints
+- **Three obstacle types** (box, cylinder, overhead) placed in the workspace
+- **Safety margins**: 5cm minimum distance enforced between arms and obstacles
+- **Distance monitoring**: Real-time logging of arm-to-arm and arm-to-obstacle distances
+- **Zero collisions** across all test runs
 
 ## Technical Stack
 
@@ -24,76 +20,54 @@ A demonstration of dual-arm bimanual manipulation acting as the computational te
 |---|---|
 | Physics Engine | MuJoCo 3.x |
 | Robot Model | Franka Emika Panda (7-DoF) × 2 |
-| Cable Physics Model | Adapted Discrete Elastic Rods (DER) via `qj25/adapteddlomuj` (Phase 2) |
-| IK Solver / Kinematics | `mink` (differential IK with QP) / Pinocchio |
-| Local Control | MPC with Control Barrier Functions (CBF-QP) (Phase 3) |
-| Global Planner | TUM's Direction Informed Trees (DIT*) / Just-in-Time (JIT) (Phase 4) |
-| Language | Python 3 / C++ |
+| IK Solver | mink (differential IK with QP) |
+| Collision Avoidance | mink.CollisionAvoidanceLimit |
+| QP Solver | DAQP |
+| Language | Python 3 |
 
-## Collision Avoidance & Safety Constraints Details
+## Collision Avoidance Details
 
-The final system architecture relies heavily on local safety wrappers. Currently using constrained differential inverse kinematics to enforce basic safety bounds, the framework is advancing towards strict **Control Barrier Functions (CBFs)** implementation:
+The system uses **constrained differential inverse kinematics** to enforce safety:
 
-- $h_{arm-arm} \ge 0$: Prevent self-collision between the arms.
-- $h_{arm-env} \ge 0$: Each arm safely avoids workspace obstacles.
-- $h_{cable-env} \ge 0$: Ensure the DLO avoids unintentional snags.
-- **Tension Limits**: Overstretch prevention limits.
-- **Mode-Switching via Contact Estimation**: The system achieves contact-aware fixture interaction by monitoring simulated end-effector force-torque sensors and recognizing Contact Establishment Indicators (CEI), temporarily relaxing constraints to allow intended clip insertions.
+- **Arm-to-arm avoidance**: Prevents self-collision between left and right arms
+- **Arm-to-obstacle avoidance**: Each arm avoids all 3 workspace obstacles
+- **Safety margin**: 5cm minimum clearance enforced via QP constraints
+- **Detection distance**: Avoidance behavior activates at 15cm proximity
 
-This approach draws foundational methodology from:
+This approach is a stepping stone toward implementing **Control Barrier
+Functions (CBFs)** for formal safety guarantees in deformable linear object
+(DLO/cable) manipulation, as proposed in:
 
-- Yu et al. (2023). "A coarse-to-fine framework for dual-arm manipulation of deformable linear objects with whole-body obstacle avoidance." **ICRA**.
-- Chen, K., Bing, Z., et al. (2023). "Contact-aware Shaping and Maintenance of Deformable Linear Objects With Fixtures." **IROS**.
+- Yu et al., "Generalizable whole-body global manipulation of DLOs by
+  dual-arm robot," IJRR, 2024
+- Chen et al., "Contact-aware Shaping and Maintenance of DLOs With
+  Fixtures," IROS, 2023
+- Aksoy & Wen, "Planning and Control for DLO Manipulation," 2025
 
 ## Installation
 
-You have two choices for setting up the workspace. **Python 3.10+** is strictly required.
-
-### Automatic Installation (Recommended)
-
-**Linux / macOS**
-
 ```bash
-chmod +x setup_env.sh
-./setup_env.sh
-source venv/bin/activate
-```
-
-**Windows** (Run from Command Prompt)
-
-```cmd
-setup_env.bat
-venv\Scripts\activate.bat
-```
-
-### Manual Installation
-
-```bash
-git clone https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance.git
-cd dual-arm-dlo-collision-avoidance
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -U pip
-pip install -r requirements.txt
+pip install mink mujoco numpy loop-rate-limiters daqp
+git clone https://github.com/<YOUR_USERNAME>/dual_panda_collision_avoidance.git
+cd dual_panda_collision_avoidance
 ```
 
 ## Usage
 
 ```bash
-cd simulation
-python demo_pick_cube.py
+python demo_collision_avoidance.py
 ```
 
-## Roadmap & Next Steps
+## Next Steps
 
-This repository is actively progressing through a 6-month timeline corresponding to the `ROADMAP.md` tracking plan:
+This demo serves as a baseline for my Master's thesis on
+**"Collision Avoidance in Dual-Arm Manipulation of Deformable Linear Objects"**:
 
-1. **Phase 1: Rigid-Body Baseline (Completed)**: MuJoCo dual-arm environment setup via direct API.
-2. **Phase 2: DLO & Planner Integration**: Integrate `qj25/adapteddlomuj` Discrete Elastic Rods (DER) cable model.
-3. **Phase 3: CBF Safety Layer**: MPC local controller for path tracking with 4 core CBF constraints via OSQP.
-4. **Phase 4: Global Planner Integration**: DIT*/JIT* algorithm adaptation for DLOs with catenary-aware cost functions.
-5. **Phase 5: Contact-Aware Fixture Routing**: Mode-switching CBF utilizing Contact Establishment Indicators (CEI) to relax constraints at routing clip contact zones.
+1. **ROS 2 + MoveIt 2** integration via multipanda_ros2
+2. **DLO modeling** using Adapted Discrete Elastic Rods (DER)
+3. **CBF safety layer** with formal safety guarantees
+4. **Contact-aware fixture interaction** for cable routing
 
----
-**Muhammad Mahad**
-*(For full details, please refer to the `docs/thesis_proposal.md` document.)*
+## Author
+
+[Your Name] — [Your University]

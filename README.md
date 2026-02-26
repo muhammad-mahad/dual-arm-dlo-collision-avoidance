@@ -199,6 +199,6 @@ This project is licensed under the MIT License — see [LICENSE](LICENSE) for de
 
 ## Contact
 
-**[Muhammad Mahad]**  
+**Muhammad Mahad**  
 M.Sc. Candidate, Robotics & AI — NUST, Pakistan  
 [LinkedIn](https://www.linkedin.com/in/muhammad-mahad/) | [Email](mailto:mmahad.rime24smme@student.nust.edu.pk)

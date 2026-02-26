@@ -2,11 +2,11 @@
 
 ### M.Sc. Thesis Simulation — Robotics & AI, NUST
 
+[![Project Page](https://img.shields.io/badge/🌐_Project_Page-Live-blueviolet)](https://muhammad-mahad.github.io/dual-arm-dlo-collision-avoidance/)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
 [![MuJoCo](https://img.shields.io/badge/MuJoCo-3.x-green)](https://github.com/google-deepmind/mujoco)
 [![mink](https://img.shields.io/badge/IK-mink-orange)](https://github.com/kevinzakka/mink)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![Project Page](https://img.shields.io/badge/🌐_Project_Page-Live-blueviolet)](https://muhammad-mahad.github.io/dual-arm-dlo-collision-avoidance/)
 
 > **Thesis title:** Safe Dual-Arm Cable Routing with Deformable Linear Objects: Hierarchical Planning and Contact-Aware Control Barrier Functions
 
@@ -19,7 +19,7 @@
 > Two Franka Emika Panda arms performing autonomous pick-up, contact-aware  
 > handover, and smooth millimeter-scale placement in MuJoCo.
 
-📹 **Full demo video:** [Insert YouTube / Drive link]
+📹 **Full demo video:** [Watch here](media/demo.webm)
 
 ---
 

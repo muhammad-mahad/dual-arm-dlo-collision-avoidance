@@ -14,12 +14,10 @@
 
 ## Demo
 
-![Demo Preview](media/demo_preview.gif)
-
 > Two Franka Emika Panda arms performing autonomous pick-up, contact-aware  
 > handover, and smooth millimeter-scale placement in MuJoCo.
 
-📹 **Full demo video:** [Watch here](media/demo.webm)
+<video src="https://raw.githubusercontent.com/muhammad-mahad/dual-arm-dlo-collision-avoidance/main/media/demo.webm" controls autoplay loop muted style="max-width: 100%; border-radius: 8px; border: 1px solid #444; margin-top: 10px;"></video>
 
 ---
 

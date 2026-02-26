@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safe Dual-Arm Cable Routing — M.Sc. Thesis</title>
+  <meta name="description"
+    content="Hierarchical planning and contact-aware control barrier functions for safe dual-arm cable routing with deformable linear objects in MuJoCo simulation." />
+  <meta name="author" content="Muhammad Mahad" />
+  <meta name="keywords"
+    content="dual-arm manipulation, deformable linear objects, cable routing, control barrier functions, MuJoCo, robotics thesis" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Safe Dual-Arm Cable Routing with DLOs" />
+  <meta property="og:description"
+    content="Hierarchical collision-avoidance framework for dual-arm cable routing — M.Sc. Thesis, NUST" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image"
+    content="https://muhammad-mahad.github.io/dual-arm-dlo-collision-avoidance/docs/figures/demo_screenshot.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ═══════════════════ NAVIGATION ═══════════════════ -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo">
+        <span class="nav-logo-icon">⚙</span>
+        <span class="nav-logo-text">DLO<span class="accent">Safe</span></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#tech-stack">Tech Stack</a></li>
+        <li><a href="#timeline">Timeline</a></li>
+        <li><a href="#references">References</a></li>
+        <li><a href="https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance" class="nav-btn" target="_blank"
+            rel="noopener">GitHub ↗</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <header class="hero" id="hero">
+    <canvas id="heroCanvas"></canvas>
+    <div class="hero-content anim-fade-up">
+      <div class="hero-badges">
+        <span class="badge badge-blue">M.Sc. Thesis</span>
+        <span class="badge badge-purple">Robotics &amp; AI</span>
+        <span class="badge badge-green">NUST, Pakistan</span>
+      </div>
+      <h1 class="hero-title">
+        Safe Dual-Arm Cable Routing<br />
+        <span class="hero-title-gradient">with Deformable Linear Objects</span>
+      </h1>
+      <p class="hero-subtitle">
+        Hierarchical Planning &amp; Contact-Aware Control Barrier Functions
+      </p>
+      <p class="hero-author">
+        <strong>Muhammad Mahad</strong> · Supervised by
+        <a href="https://smme.nust.edu.pk/faculty/karam-dad-1/" target="_blank" rel="noopener">Dr. Karam Dad Kallu</a>
+      </p>
+      <div class="hero-cta">
+        <a href="#demo" class="btn btn-primary">Watch Demo</a>
+        <a href="https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance" class="btn btn-secondary"
+          target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
+          </svg>
+          View Code
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ DEMO ═══════════════════ -->
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="section-header anim-fade-up">
+        <span class="section-label">Live Simulation</span>
+        <h2 class="section-title">Demo</h2>
+        <p class="section-desc">
+          Two Franka Emika Panda arms performing autonomous pick-up, contact-aware
+          handover, and smooth millimeter-scale placement in MuJoCo.
+        </p>
+      </div>
+      <div class="demo-video-wrapper anim-fade-up">
+        <div class="demo-video-card">
+          <div class="demo-video-glow"></div>
+          <img
+            src="https://raw.githubusercontent.com/muhammad-mahad/dual-arm-dlo-collision-avoidance/main/media/demo_preview.gif"
+            alt="Dual-arm pick-handover-place demo in MuJoCo" class="demo-video" loading="lazy" />
+        </div>
+        <div class="demo-phases">
+          <div class="phase-item anim-fade-up">
+            <div class="phase-icon phase-icon-pick">⬇</div>
+            <div>
+              <h4>Pick-up</h4>
+              <p>Right arm approaches with top-down orientation and establishes firm grasp</p>
+            </div>
+          </div>
+          <div class="phase-item anim-fade-up">
+            <div class="phase-icon phase-icon-handover">⇄</div>
+            <div>
+              <h4>Handover</h4>
+              <p>Contact-aware transfer with 10&thinsp;mm distance sensing &amp; synchronized clamping</p>
+            </div>
+          </div>
+          <div class="phase-item anim-fade-up">
+            <div class="phase-icon phase-icon-place">⬆</div>
+            <div>
+              <h4>Place</h4>
+              <p>Smooth 1&thinsp;mm interpolated carry to target with inertial-slip prevention</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+  <section class="section section-alt" id="overview">
+    <div class="container">
+      <div class="section-header anim-fade-up">
+        <span class="section-label">Research</span>
+        <h2 class="section-title">Overview</h2>
+      </div>
+      <div class="overview-grid">
+        <div class="overview-text anim-fade-up">
+          <p class="overview-lead">
+            This thesis proposes a <strong>hierarchical collision-avoidance framework</strong>
+            for dual-arm cable routing in simulation, handling three distinct safety aspects simultaneously.
+          </p>
+          <div class="safety-cards">
+            <div class="safety-card anim-fade-up">
+              <div class="safety-num">01</div>
+              <h4>Arm–Arm Self-Collision</h4>
+              <p>Prevent the two 7-DoF manipulators from colliding with each other during coordinated motion.</p>
+            </div>
+            <div class="safety-card anim-fade-up">
+              <div class="safety-num">02</div>
+              <h4>Arm/Cable–Environment</h4>
+              <p>Ensure neither robot arms nor the cable contact environmental obstacles (walls, fixtures, workspace
+                boundaries).</p>
+            </div>
+            <div class="safety-card anim-fade-up">
+              <div class="safety-num">03</div>
+              <h4>Contact-Aware Fixtures</h4>
+              <p>Distinguish <em>desired</em> clip insertions from unintended collisions — enabling safe cable routing
+                through fixtures.</p>
+            </div>
+          </div>
+        </div>
+        <div class="overview-visual anim-fade-up">
+          <div class="problem-diagram">
+            <div class="diagram-ring diagram-ring-outer">
+              <span>14-DoF + DLO State Space</span>
+            </div>
+            <div class="diagram-ring diagram-ring-mid">
+              <span>CBF Safety Filter</span>
+            </div>
+            <div class="diagram-ring diagram-ring-inner">
+              <span>Safe<br />Motion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ ARCHITECTURE ═══════════════════ -->
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="section-header anim-fade-up">
+        <span class="section-label">Methodology</span>
+        <h2 class="section-title">Hierarchical Architecture</h2>
+        <p class="section-desc">
+          A two-level planning and control pipeline: a global planner computes coarse
+          collision-free paths, tracked by a local MPC controller wrapped in a safety-certified CBF.
+        </p>
+      </div>
+      <div class="arch-diagram anim-fade-up">
+        <div class="arch-level arch-level-global">
+          <div class="arch-level-badge">Level 1</div>
+          <h3>Global Motion Planner</h3>
+          <p>DIT*/JIT* in 14-DoF + DLO configuration space</p>
+          <div class="arch-features">
+            <span>Catenary-aware cost</span>
+            <span>DLO collision checking</span>
+            <span>Asymptotically optimal</span>
+          </div>
+        </div>
+        <div class="arch-arrow">
+          <svg width="40" height="60" viewBox="0 0 40 60">
+            <path d="M20 0 L20 45 M10 35 L20 50 L30 35" stroke="url(#arrowGrad)" stroke-width="2.5" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <defs>
+              <linearGradient id="arrowGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#818cf8" />
+                <stop offset="100%" stop-color="#c084fc" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="arch-arrow-label">Coarse path</span>
+        </div>
+        <div class="arch-level arch-level-local">
+          <div class="arch-level-badge">Level 2</div>
+          <h3>Local Controller</h3>
+          <p>MPC + Mode-Switching CBF-QP Safety Filter</p>
+          <div class="arch-features">
+            <span>h<sub>arm-arm</sub> ≥ 0</span>
+            <span>h<sub>arm-env</sub> ≥ 0</span>
+            <span>h<sub>cable-env</sub> ≥ 0</span>
+            <span>Tension limits</span>
+          </div>
+        </div>
+        <div class="arch-arrow">
+          <svg width="40" height="60" viewBox="0 0 40 60">
+            <path d="M20 0 L20 45 M10 35 L20 50 L30 35" stroke="url(#arrowGrad2)" stroke-width="2.5" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <defs>
+              <linearGradient id="arrowGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#c084fc" />
+                <stop offset="100%" stop-color="#f472b6" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="arch-arrow-label">Safe commands</span>
+        </div>
+        <div class="arch-level arch-level-sim">
+          <div class="arch-level-badge">Simulation</div>
+          <h3>MuJoCo + Adapted DER</h3>
+          <p>Dual Franka Panda • Discrete Elastic Rods cable model</p>
+          <div class="arch-features">
+            <span>CPU-efficient</span>
+            <span>Python / C++ API</span>
+            <span>No ROS middleware</span>
+          </div>
+        </div>
+      </div>
+      <!-- Contact-aware mode switching callout -->
+      <div class="mode-switch-card anim-fade-up">
+        <div class="mode-switch-icon">🔄</div>
+        <div class="mode-switch-content">
+          <h4>Contact-Aware Mode Switching</h4>
+          <p>
+            The CBF dynamically switches modes when force-torque sensors detect a
+            Contact Establishment Indicator (CEI) near routing clips — temporarily
+            relaxing <code>h<sub>cable-env</sub></code> to allow fixture insertion
+            while maintaining all other safety guarantees.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ TECH STACK ═══════════════════ -->
+  <section class="section section-alt" id="tech-stack">
+    <div class="container">
+      <div class="section-header anim-fade-up">
+        <span class="section-label">Technologies</span>
+        <h2 class="section-title">Tech Stack</h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card anim-fade-up">
+          <div class="tech-card-icon">🔬</div>
+          <h4>MuJoCo 3.x</h4>
+          <p>Physics simulation via direct Python/C++ API — no middleware overhead</p>
+        </div>
+        <div class="tech-card anim-fade-up">
+          <div class="tech-card-icon">🤖</div>
+          <h4>Dual Franka Panda</h4>
+          <p>Two 7-DoF manipulators from vikashplus/frankasim</p>
+        </div>
+        <div class="tech-card anim-fade-up">
+          <div class="tech-card-icon">🧮</div>
+          <h4>mink IK</h4>
+          <p>Pinocchio-based differential inverse kinematics for real-time control</p>
+        </div>
+        <div class="tech-card anim-fade-up">
+          <div class="tech-card-icon">🧬</div>
+          <h4>Adapted DER</h4>
+          <p>Discrete Elastic Rods for realistic cable bending, twisting &amp; sagging</p>
+        </div>
+        <div class="tech-card anim-fade-up">
+          <div class="tech-card-icon">🛡️</div>
+          <h4>CBF-QP</h4>
+          <p>Control Barrier Functions via OSQP / qpOASES for certified safety</p>
+        </div>
+        <div class="tech-card anim-fade-up">
+          <div class="tech-card-icon">🗺️</div>
+          <h4>DIT* / JIT*</h4>
+          <p>State-of-the-art asymptotically optimal global motion planners</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ TIMELINE ═══════════════════ -->
+  <section class="section" id="timeline">
+    <div class="container">
+      <div class="section-header anim-fade-up">
+        <span class="section-label">Roadmap</span>
+        <h2 class="section-title">6-Month Timeline</h2>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item timeline-done anim-fade-up">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-month">Month 1</div>
+            <span class="timeline-status status-done">✅ Completed</span>
+            <h4>Simulation Setup &amp; Minimal Interface</h4>
+            <p>MuJoCo dual-arm environment constructed via direct API. Rigid-body baseline with 18-phase
+              pick-handover-place demo operational.</p>
+          </div>
+        </div>
+        <div class="timeline-item anim-fade-up">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-month">Month 2</div>
+            <span class="timeline-status status-planned">🔲 Planned</span>
+            <h4>Local Control &amp; Baseline Safety</h4>
+            <p>MPC tracking controller and core CBF constraints (arm-arm, environment, tension) using geometric distance
+              queries.</p>
+          </div>
+        </div>
+        <div class="timeline-item anim-fade-up">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-month">Month 3</div>
+            <span class="timeline-status status-planned">🔲 Planned</span>
+            <h4>Global Planner Integration</h4>
+            <p>DIT*/JIT* adapted for DLOs with catenary-aware cost function and DLO-inclusive collision checking.</p>
+          </div>
+        </div>
+        <div class="timeline-item anim-fade-up">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-month">Month 4</div>
+            <span class="timeline-status status-planned">🔲 Planned</span>
+            <h4>Contact-Aware Mode Switching</h4>
+            <p>Force-simulated CEI implementation and mode-switching CBF logic for clip insertions.</p>
+          </div>
+        </div>
+        <div class="timeline-item anim-fade-up">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-month">Month 5</div>
+            <span class="timeline-status status-planned">🔲 Planned</span>
+            <h4>Dynamic Stress Testing</h4>
+            <p>Evaluation: fast motions, dynamic obstacle avoidance. Benchmarking against standard MPC and vanilla RRT.
+            </p>
+          </div>
+        </div>
+        <div class="timeline-item anim-fade-up">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-month">Month 6</div>
+            <span class="timeline-status status-planned">🔲 Planned</span>
+            <h4>Thesis Writing &amp; Defense</h4>
+            <p>Data analysis, final manuscript drafting, and defense presentation formatting.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ REFERENCES ═══════════════════ -->
+  <section class="section section-alt" id="references">
+    <div class="container">
+      <div class="section-header anim-fade-up">
+        <span class="section-label">Literature</span>
+        <h2 class="section-title">Key References</h2>
+      </div>
+      <ol class="ref-list anim-fade-up">
+        <li>Yin, H., Varava, A., &amp; Kragic, D. (2021). "Modeling, learning, perception, and control methods for
+          deformable object manipulation." <em>Science Robotics</em>, 6(54).</li>
+        <li>Yu, M., et al. (2023). "A coarse-to-fine framework for dual-arm manipulation of deformable linear objects
+          with whole-body obstacle avoidance." <em>ICRA 2023</em>.</li>
+        <li>Chen, K., Bing, Z., et al. (2023). "Contact-aware Shaping and Maintenance of Deformable Linear Objects With
+          Fixtures." <em>IROS 2023</em>.</li>
+        <li>Chen, K., et al. (2024). "Real-time Contact State Estimation in Shape Control of DLOs under Small
+          Environmental Constraints." <em>ICRA 2024</em>.</li>
+        <li>Zhang, L., et al. (2025). "Direction Informed Trees (DIT*): Optimal Path Planning via Direction Filter and
+          Direction Cost Heuristic." <em>arXiv:2508.19168</em>.</li>
+        <li>Cai, K., Zhang, L., et al. (2026). "Just in time Informed Trees: Manipulability-Aware Asymptotically
+          Optimized Motion Planning." <em>arXiv:2601.19972</em>.</li>
+        <li>Zhu, J., et al. (2019). "Robotic manipulation planning for shaping deformable linear objects with
+          environmental contacts." <em>IEEE RA-L</em>.</li>
+        <li>Zeng, Q., et al. (2023). "Accurate Simulation and Parameter Identification of DLOs in MuJoCo."
+          <em>arXiv:2310.00911</em>.
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-info">
+          <h3>DLO<span class="accent">Safe</span></h3>
+          <p>M.Sc. Thesis — Robotics &amp; AI<br />National University of Sciences and Technology, Pakistan</p>
+        </div>
+        <div class="footer-links">
+          <h4>Links</h4>
+          <a href="https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance" target="_blank"
+            rel="noopener">GitHub Repository</a>
+          <a href="https://www.linkedin.com/in/muhammad-mahad/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="mailto:mmahad.rime24smme@student.nust.edu.pk">Email</a>
+        </div>
+        <div class="footer-links">
+          <h4>Resources</h4>
+          <a href="https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance/blob/main/docs/thesis_proposal.md"
+            target="_blank" rel="noopener">Thesis Proposal</a>
+          <a href="https://github.com/muhammad-mahad/dual-arm-dlo-collision-avoidance/blob/main/ROADMAP.md"
+            target="_blank" rel="noopener">Roadmap</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Muhammad Mahad · MIT License</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

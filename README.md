@@ -19,6 +19,7 @@
 > Two Franka Emika Panda arms performing autonomous pick-up, contact-aware  
 > handover, and smooth millimeter-scale placement in MuJoCo.
 
+![Demo Video](media/demo.mp4)
 <video src="media/demo.mp4" controls="controls" muted="muted" width="100%"></video>
 
 ---

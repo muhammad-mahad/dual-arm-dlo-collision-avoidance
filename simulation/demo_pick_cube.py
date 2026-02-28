@@ -156,12 +156,12 @@ def carry_smooth(waypoints, quat, label,
                  active_grip, frozen_grip,
                  frozen_grip_val,
                  rate, viewer,
-                 step_size=0.003,      # 3mm per IK step — very smooth
+                 step_size=0.003,      # 3mm per IK step, which ensures a very smooth motion
                  damping=5e-2,
                  settle_steps=30):
     """
     Move through a list of waypoints by interpolating the mocap target
-    in tiny increments. Never jumps — gripper stays firmly closed.
+    in tiny increments. It never jumps and the gripper stays firmly closed.
     """
     print(f"\n>>> {label}  ({len(waypoints)} waypoints)")
     current = np.array(data.mocap_pos[mocap_id], dtype=float)
@@ -188,7 +188,7 @@ def carry_smooth(waypoints, quat, label,
             cfg.integrate_inplace(vel, rate.dt)
 
             data.ctrl[active_ctrl]  = cfg.q[active_qpos]
-            data.ctrl[active_grip]  = 0.0            # ALWAYS closed — hardcoded
+            data.ctrl[active_grip]  = 0.0            # ALWAYS closed (hardcoded)
             data.ctrl[frozen_ctrl]  = frozen_vals
             data.ctrl[frozen_grip]  = frozen_grip_val
 
@@ -254,7 +254,7 @@ def wait_for_left_grip(target_pos, contact_thr,
         data.ctrl[0:7]  = cfg.q[0:7]
         data.ctrl[7]    = 255.0   # left open
         data.ctrl[8:15] = rq      # right frozen
-        data.ctrl[15]   = 0.0     # RIGHT CLOSED — hardcoded, cannot be overridden
+        data.ctrl[15]   = 0.0     # RIGHT CLOSED (hardcoded, cannot be overridden)
 
         mujoco.mj_step(model, data)
         viewer.sync()
@@ -309,7 +309,7 @@ def main():
         rhq = data.qpos[9:16].copy()
         reset_cube(model, data)
 
-        # Quaternions — rotation logic preserved
+        # Quaternions with rotation logic preserved
         q_r_down = topdown_quat_for_site(model, data, "attachment_site_right")
         q_r_side = sidegrip_quat(approach_dir=[-1, 0, 0], y_hint=[0, 0, 1])
         q_l_side = sidegrip_quat(approach_dir=[+1, 0, 0], y_hint=[0, 1, 0])
@@ -358,7 +358,7 @@ def main():
                         frozen_grip_val=right_grip_val,
                         rate=rate, viewer=viewer, **kw)
 
-        # P0-P2: right open (default frozen_grip_val=255 left open — fine)
+        # P0-P2: right open (default frozen_grip_val=255 means left is open, which is fine)
         move_single(above_cube, q_r_down, "P0 · Right approaches cube (top-down orientation)",
                     ee_task=task_r, tasks=tasks_r, gripper_val=255.0,
                     pos_thr=0.025, ori_thr=0.25, timeout_secs=20.0, **r())
@@ -373,11 +373,11 @@ def main():
 
         rq = data.qpos[9:16].copy()
         actuate_grippers(model, data, rate, viewer,
-                         lhq, rq, 255.0, 0.0, 160, "P3 · Right gripper closes — firm grasp established")
+                         lhq, rq, 255.0, 0.0, 160, "P3 · Right gripper closes to establish a firm grasp")
         rq = data.qpos[9:16].copy()
 
-        # P4-P5: right CLOSED — pass frozen_grip_val=255.0 (left open, default)
-        # gripper_val=0.0 controls RIGHT (active arm) → CLOSED
+        # P4-P5: right CLOSED. Pass frozen_grip_val=255.0 to keep left open by default.
+        # gripper_val=0.0 controls RIGHT (active arm) set to CLOSED
         move_single(lift, q_r_down, "P4 · Right lifts cube",
                     ee_task=task_r, tasks=tasks_r,
                     gripper_val=0.0,
@@ -425,15 +425,15 @@ def main():
         )
         rq = data.qpos[9:16].copy()
 
-        # P9: FIRMLY close left — more steps, lower ctrl value reinforcement
+        # P9: FIRMLY close left. Use more steps and lower ctrl value for reinforcement
         # Close left first with dedicated actuate call (200 steps)
         actuate_grippers(model, data, rate, viewer,
                          lq, rq, 0.0, 0.0, 300,
-                         "P9 · Synchronized clamping — both grippers close")
+                         "P9 · Synchronized clamping: both grippers close")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P9b: extra settle — hold both grippers closed, no arm motion
+        # P9b: extra settle. Hold both grippers closed without arm motion
         # Lets physics confirm left finger contact before right releases
         for _ in range(120):
             if not viewer.is_running(): break
@@ -446,14 +446,14 @@ def main():
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P10: right opens — FIRST TIME since P3
+        # P10: right opens for the FIRST TIME since P3
         actuate_grippers(model, data, rate, viewer,
                          lq, rq, 0.0, 255.0, 120,
                          "P10 · Right gripper opens (handover complete)")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P10b: settle after right opens — confirm left holds alone
+        # P10b: settle after right opens to confirm the left arm holds the cube alone
         for _ in range(80):
             if not viewer.is_running(): break
             data.ctrl[0:7]  = lq;  data.ctrl[7]  = 0.0   # left CLOSED
@@ -464,7 +464,7 @@ def main():
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P11a: Left moves SIDEWAYS first — same height, no vertical change
+        # P11a: Left moves SIDEWAYS first at the same height, with no vertical change
         move_single(carry_away, q_l_side, "P11a · Left arm moves sideways at constant height (prevents inertial slip)",
                     ee_task=task_l, tasks=tasks_l,
                     gripper_val=0.0,
@@ -474,7 +474,7 @@ def main():
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P11b: Left lifts UP — only Z changes now
+        # P11b: Left lifts UP. Only Z changes now.
         move_single(carry_up, q_l_side, "P11b · Left lifts up",
                     ee_task=task_l, tasks=tasks_l,
                     gripper_val=0.0,
@@ -487,7 +487,7 @@ def main():
         # Read actual left EE position right now
         left_now = data.site_xpos[site_l].copy()
 
-        # Pure single-axis waypoints — one axis moves at a time
+        # Pure single-axis waypoints. One axis moves at a time.
         # left_now is approx [-0.20, -0.15, hz+0.15] after carry_away
 
         # WP1: Move Y forward toward table center (pure Y, same X and Z)
@@ -499,9 +499,9 @@ def main():
         # WP3: Lower Z to just above table surface (pure Z down)
         wp3 = np.array([-0.04,          -0.40,          TABLE_TOP + CUBE_HALF + 0.005])
 
-        # P12: Right retreats — left arm FULLY FROZEN at current lq
-        # NEVER use **r() here — r() passes lhq (home) as frozen, not current lq
-        print("\n>>> P12 · Right arm retreats — left arm fully frozen at current joint state")
+        # P12: Right retreats while the left arm is FULLY FROZEN at current lq
+        # NEVER use **r() here. Passing r() uses lhq (home) as the frozen state, not the current lq
+        print("\n>>> P12 · Right arm retreats while the left arm remains fully frozen at its current joint state")
         right_retreat_pos  = np.array([0.30, 0.20, 0.55])
         data.mocap_pos[moc_r]  = right_retreat_pos
         data.mocap_quat[moc_r] = q_r_down.copy()
@@ -519,7 +519,7 @@ def main():
             data.ctrl[RC]  = cfg.q[RQ]   # right arm moves
             data.ctrl[RG]  = 255.0        # right open
             data.ctrl[LC]  = lq           # left FROZEN at current (NOT lhq!)
-            data.ctrl[LG]  = 0.0          # left gripper CLOSED — cube held
+            data.ctrl[LG]  = 0.0          # left gripper CLOSED so the cube is held
 
             mujoco.mj_step(model, data)
             data.ctrl[LG]  = 0.0          # clamp again after step
@@ -551,14 +551,14 @@ def main():
             active_grip=LG, frozen_grip=RG,
             frozen_grip_val=255.0,
             rate=rate, viewer=viewer,
-            step_size=0.001,       # 1mm steps — ultra smooth
+            step_size=0.001,       # 1mm steps for ultra smooth motion
             damping=8e-2,          # very high damping
             settle_steps=60        # longer settle at each waypoint
         )
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P16: Settle — weight transfers to table
+        # P16: Settle down to transfer weight to the table
         print("\n>>> P16 · Cube settles on table")
         for _ in range(200):
             if not viewer.is_running(): break
@@ -570,14 +570,14 @@ def main():
         print("    ✓ Placement stabilized")
         lq = data.qpos[0:7].copy()
 
-        # P17: Open left gripper — release cube
+        # P17: Open left gripper to release the cube
         actuate_grippers(model, data, rate, viewer,
                          lq, rq, 255.0, 255.0, 160,
                          "P17 · Left gripper opens (cube placed)")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
-        # P18: Left retreats — to the LEFT side (negative X)
+        # P18: Left retreats to the LEFT side (negative X)
         wp_up   = np.array([-0.04,  -0.40,   TABLE_TOP + 0.25])   # straight up first (same)
         wp_back = np.array([-0.35,  -0.20,   TABLE_TOP + 0.25])   # ← negative X = LEFT side
 
@@ -593,13 +593,13 @@ def main():
             active_grip=LG, frozen_grip=RG,
             frozen_grip_val=255.0,
             rate=rate, viewer=viewer,
-            step_size=0.003,       # can go faster — no cube
+            step_size=0.003,       # Can go faster since there is no cube
             damping=1e-2,
             settle_steps=20
         )
 
 
-        print("\n=== DEMO COMPLETE — Ctrl+C to quit ===")
+        print("\n=== DEMO COMPLETE, Press Ctrl+C to quit ===")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
         while viewer.is_running():

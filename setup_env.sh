@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-#  setup_env.sh  —  Linux / macOS
+#  setup_env.sh for Linux / macOS
 #  Usage:
 #    chmod +x setup_env.sh
 #    ./setup_env.sh
@@ -15,7 +15,7 @@ REQUIREMENTS="$SCRIPT_DIR/requirements.txt"
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 
 echo -e "${GREEN}============================================${NC}"
-echo -e "${GREEN}  Dual-Arm DLO Demo — Environment Setup    ${NC}"
+echo -e "${GREEN}  Dual-Arm DLO Demo: Environment Setup    ${NC}"
 echo -e "${GREEN}============================================${NC}"
 
 # ── 1. Check Python ──────────────────────────────────────────

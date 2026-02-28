@@ -1,6 +1,6 @@
 # Safe Dual-Arm Cable Routing with Deformable Linear Objects
 
-### M.Sc. Thesis Simulation — Robotics & AI, NUST
+### M.Sc. Thesis Simulation: Robotics & AI, NUST
 
 [![Project Page](https://img.shields.io/badge/🌐_Project_Page-Live-blueviolet)](https://muhammad-mahad.github.io/dual-arm-dlo-collision-avoidance/)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
@@ -78,7 +78,7 @@ The primary objective is to design a hierarchical collision-avoidance framework 
 
 ---
 
-### Option 1 — Automated Setup (Recommended)
+### Option 1: Automated Setup (Recommended)
 
 Clone the repository and run the setup script for your platform. It will automatically create the virtual environment and install all dependencies from `requirements.txt`.
 
@@ -101,7 +101,7 @@ setup_env.bat
 
 ---
 
-### Option 2 — Manual Setup
+### Option 2: Manual Setup
 
 ```bash
 # 1. Clone the repository
@@ -152,12 +152,12 @@ A MuJoCo viewer window will open and the 18-phase dual-arm pick-handover-place s
 | Phase | Description |
 |---|---|
 | P0–P2 | Right arm approaches and grasps cube (top-down orientation) |
-| P3 | Right gripper closes — firm grasp established |
+| P3 | Right gripper closes: firm grasp established |
 | P4–P5 | Right arm lifts cube, wrist reorients to side-grip, moves to handover position |
 | P6–P8 | Left arm approaches with contact sensing (distance threshold: 10 mm) |
-| P9–P10 | Synchronized clamping — both grippers close, right gripper opens (handover complete) |
+| P9–P10 | Synchronized clamping: both grippers close, right gripper opens (handover complete) |
 | P11a–P11b | Left arm moves sideways at constant height, then lifts (prevents inertial slip) |
-| P12 | Right arm retreats — left arm fully frozen at current joint state |
+| P12 | Right arm retreats while left arm is fully frozen at current joint state |
 | P13–P15 | Left carry via smooth 1 mm waypoint interpolation to table center |
 | P16–P17 | Cube settles on table, left gripper opens |
 | P18 | Left arm retreats |
@@ -194,12 +194,12 @@ See [ROADMAP.md](ROADMAP.md) for detailed task tracking based on the thesis prop
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
 ## Contact
 
 **Muhammad Mahad**  
-M.Sc. Candidate, Robotics & AI — NUST, Pakistan  
+M.Sc. Candidate, Robotics & AI, NUST, Pakistan  
 [LinkedIn](https://www.linkedin.com/in/muhammad-mahad/) | [Email](mailto:mmahad.rime24smme@student.nust.edu.pk)

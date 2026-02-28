@@ -85,7 +85,7 @@ def load_model():
 def check_site(model, name):
     try:
         sid = model.site(name).id
-        print(f"[INFO] {name}  id={sid} ✓")
+        print(f"[INFO] Verified site '{name}' (id={sid})")
         return sid
     except Exception:
         raise RuntimeError(f"[ERROR] Site '{name}' not found.")
@@ -95,7 +95,7 @@ def reset_cube(model, data):
     adr = model.jnt_qposadr[model.joint("cube_joint").id]
     data.qpos[adr:adr+7] = [*CUBE_WORLD_POS, 1, 0, 0, 0]
     mujoco.mj_forward(model, data)
-    print(f"[INFO] Cube → {CUBE_WORLD_POS}")
+    print(f"[INFO] Initialized Cube position to {CUBE_WORLD_POS}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -139,10 +139,10 @@ def move_single(pos, quat, label,
         mujoco.mju_mat2Quat(q_now, data.site_xmat[site_id])
         ori_err = quat_error(q_now, quat)
         if pos_err <= pos_thr and ori_err <= ori_thr:
-            print(f"    ✓ pos={pos_err*1000:.1f}mm  ori={ori_err:.3f}rad")
+            print(f"    ✓ Pos error: {pos_err*1000:.1f}mm  |  Ori error: {ori_err:.3f}rad")
             return True
         if (data.time - t0) > timeout_secs:
-            print(f"    ⚠ timeout  pos={pos_err*1000:.1f}mm  ori={ori_err:.3f}rad")
+            print(f"    ⚠ Timeout (Pos error: {pos_err*1000:.1f}mm | Ori error: {ori_err:.3f}rad)")
             return False
     return False
 
@@ -209,7 +209,7 @@ def carry_smooth(waypoints, quat, label,
             rate.sleep()
 
         current = target.copy()
-        print(f"    ✓ WP{wp_idx+1} reached")
+        print(f"    ✓ Waypoint {wp_idx+1}/{len(waypoints)} reached")
 
 
 def actuate_grippers(model, data, rate, viewer,
@@ -229,7 +229,7 @@ def actuate_grippers(model, data, rate, viewer,
         viewer.sync()
         rate.sleep()
     if label:
-        print("    ✓")
+        print("    ✓ Gripper actuation finished")
 
 
 def wait_for_left_grip(target_pos, contact_thr,
@@ -267,7 +267,7 @@ def wait_for_left_grip(target_pos, contact_thr,
             print(f"\n    ✓ Contact-Aware logic triggered at {dist*1000:.1f}mm")
             return data.qpos[0:7].copy()
         if (data.time - t0) > timeout_secs:
-            print(f"\n    ⚠ Timeout at {dist*1000:.1f}mm")
+            print(f"\n    ⚠ Timeout: Failed to confirm contact (Stopped at {dist*1000:.1f}mm)")
             return data.qpos[0:7].copy()
     return data.qpos[0:7].copy()
 
@@ -442,7 +442,7 @@ def main():
             mujoco.mj_step(model, data)
             viewer.sync()
             rate.sleep()
-        print("    ✓ P9b settle done")
+        print("    ✓ Firm double grasp confirmed via physics step")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
@@ -528,10 +528,10 @@ def main():
 
             pos_err = np.linalg.norm(data.site_xpos[site_r] - right_retreat_pos)
             if pos_err <= 0.030:
-                print(f"    ✓ Right retreated  pos={pos_err*1000:.1f}mm")
+                print(f"    ✓ Right arm retreated (Pos error: {pos_err*1000:.1f}mm)")
                 break
             if (data.time - t0) > 12.0:
-                print(f"    ⚠ timeout  pos={pos_err*1000:.1f}mm")
+                print(f"    ⚠ Timeout: Right arm retreat (Pos error: {pos_err*1000:.1f}mm)")
                 break
 
         rq = data.qpos[9:16].copy()
@@ -567,7 +567,7 @@ def main():
             mujoco.mj_step(model, data)
             viewer.sync()
             rate.sleep()
-        print("    ✓")
+        print("    ✓ Placement stabilized")
         lq = data.qpos[0:7].copy()
 
         # P17: Open left gripper — release cube

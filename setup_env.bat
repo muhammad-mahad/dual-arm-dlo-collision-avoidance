@@ -11,7 +11,7 @@ set SCRIPT_DIR=%~dp0
 set REQUIREMENTS=%SCRIPT_DIR%requirements.txt
 
 echo ============================================
-echo   Dual-Arm DLO Demo ^— Environment Setup
+echo   Dual-Arm DLO Demo — Environment Setup
 echo ============================================
 
 :: ── 1. Check Python ──────────────────────────────────────────

@@ -65,6 +65,7 @@ The primary objective is to design a hierarchical collision-avoidance framework 
 | Cable Physics Model | Adapted Discrete Elastic Rods ([qj25/adapteddlomuj](https://github.com/qj25/adapteddlomuj)) |
 | Local Control / Safety | MPC + Control Barrier Functions (CBF-QP) via OSQP / qpOASES |
 | Global Planner | Direction Informed Trees (DIT*) / Just-in-Time (JIT) |
+| Hardware Sync | ROS Integration (Ready for future real-world deployment) |
 | Language | Python 3.10+ / C++ |
 
 ---

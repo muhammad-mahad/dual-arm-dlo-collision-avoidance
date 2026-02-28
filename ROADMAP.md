@@ -28,9 +28,10 @@ Below is the structured 6-month development timeline derived from the thesis pro
   - [ ] Execute evaluation scenarios: fast motions and dynamic obstacle avoidance.
   - [ ] Benchmark performance against standard MPC (without CBF) and vanilla RRT.
 
-## 📌 Phase 4: Finalization (Month 6)
+## 📌 Phase 4: Finalization & Setup (Month 6)
 
-- [ ] **Month 6: Thesis Writing & Defense Preparation**
+- [ ] **Month 6: Thesis Writing & Hardware Integration Prep**
+  - [ ] Implement ROS Integration pipeline for future hardware synchronization.
   - [ ] Data analysis.
   - [ ] Final manuscript drafting.
   - [ ] Presentation formatting.

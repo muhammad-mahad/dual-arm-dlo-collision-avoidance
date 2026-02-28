@@ -93,7 +93,7 @@ To prove the robustness of the CBF safety filter over open-loop planning, the lo
 - **Cable Physics Model**: Adapted Discrete Elastic Rods (DER) via `qj25/adapteddlomuj`
 - **Kinematics**: Pinocchio / `mink` IK library
 - **Optimization**: OSQP or qpOASES (for the CBF-QP)
-- **Future Transfer**: multipanda_ros2 (for eventual sim-to-real Phase)
+- **Hardware Sync**: ROS Integration for seamless future real-world deployment and hardware synchronization
 
 ## 7. References
 

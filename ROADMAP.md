@@ -15,7 +15,7 @@ Below is the structured 6-month development timeline derived from the thesis pro
 ## 📌 Phase 2: DLO & Planner Integration (Month 3)
 
 - [ ] **Month 3: Global Planner Integration**
-  - [ ] Adapt the DIT/JIT (or CBiRRT) algorithm for DLOs.
+  - [ ] Adapt the DIT* or JIT (or CBiRRT) algorithm for DLOs.
   - [ ] Integrate DLO-inclusive collision checking and the catenary-aware cost function.
 
 ## 📌 Phase 3: Contact-Aware Routing & Testing (Month 4-5)

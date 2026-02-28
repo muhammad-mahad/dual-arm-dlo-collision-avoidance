@@ -35,7 +35,7 @@ The current codebase implements a complete rigid-body **Month 1 Baseline**:
 - ✅ Continuous task-space control via **mink differential IK**
 - ✅ Freeze-and-freeze gripper isolation to prevent grip loss
 
-The thesis roadmap extends this testbed to **deformable cable manipulation**, utilizing a **global planner (JIT/DIT) for coarse pathing** and a local controller featuring **MPC wrapped in a Control Barrier Function (CBF)**.
+The thesis roadmap extends this testbed to **deformable cable manipulation**, utilizing a **global planner (DIT* or JIT) for coarse pathing** and a local controller featuring **MPC wrapped in a Control Barrier Function (CBF)**.
 
 ---
 
@@ -48,7 +48,7 @@ supervision of [Dr. Karam Dad Kallu](https://smme.nust.edu.pk/faculty/karam-dad-
 The primary objective is to design a hierarchical collision-avoidance framework for dual-arm cable routing in simulation, handling three distinct safety aspects simultaneously:
 
 1. **Arm–arm self-collision**
-2. **Arm/cable–environment collision**
+2. **Arm/cable environment collision**
 3. **Contact-aware fixture interaction** (distinguishing desired clip insertions from unintended collisions)
 
 📄 [Read the full thesis proposal](docs/thesis_proposal.md)
@@ -172,7 +172,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed task tracking based on the thesis prop
 |---|---|---|
 | **Month 1** | ✅ In Progress | **Simulation Setup & Minimal Interface**: Construct MuJoCo dual-arm environment (direct API) and calibrate DER cable model. *(Rigid-body baseline completed)* |
 | **Month 2** | 🔲 Planned | **Local Control & Baseline Safety**: Develop MPC tracking controller & implement core CBF constraints ($h_{arm-arm} \ge 0$, $h_{arm-env} \ge 0$, $h_{cable-env} \ge 0$, tension limits). |
-| **Month 3** | 🔲 Planned | **Global Planner Integration**: Adapt DIT/JIT algorithms for DLOs using a catenary-aware cost function. |
+| **Month 3** | 🔲 Planned | **Global Planner Integration**: Adapt DIT* or JIT algorithms for DLOs using a catenary-aware cost function. |
 | **Month 4** | 🔲 Planned | **Contact-Aware Mode Switching**: Implement force-simulated CEI to temporarily relax constraints for clip insertions. |
 | **Month 5** | 🔲 Planned | **Dynamic Stress Testing & Evaluation**: Execute fast motions/dynamic obstacle avoidance, benchmarking against standard MPC and vanilla RRT. |
 | **Month 6** | 🔲 Planned | **Thesis Writing**: Data analysis, final manuscript drafting, and defense formatting. |

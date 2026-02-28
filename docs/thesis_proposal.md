@@ -25,9 +25,9 @@
 
 ## 1. Abstract
 
-The manipulation of deformable linear objects (DLOs), such as cables, is a crucial step in industrial manufacturing. Unlike rigid bodies, routing a DLO through constrained environments using dual-arm manipulation introduces severe motion planning challenges. A robust system must handle three distinct safety aspects simultaneously: (1) arm–arm self-collision, (2) arm/cable–environment collision, and (3) contact-aware fixture interaction (distinguishing necessary, desired clip insertions from unintended collisions). Currently, no existing framework integrates all three capabilities into a unified, computationally scalable system.
+The manipulation of deformable linear objects (DLOs), such as cables, is a crucial step in industrial manufacturing. Unlike rigid bodies, routing a DLO through constrained environments using dual-arm manipulation introduces severe motion planning challenges. A robust system must handle three distinct safety aspects simultaneously: (1) arm–arm self-collision, (2) arm/cable environment collision, and (3) contact-aware fixture interaction (distinguishing necessary, desired clip insertions from unintended collisions). Currently, no existing framework integrates all three capabilities into a unified, computationally scalable system.
 
-This thesis proposes a novel hierarchical collision-avoidance framework for dual-arm cable routing in simulation. The architecture utilizes a global planner extending advanced, highdimensional planners such as Just-in-Time (JIT) or Direction Informed Trees (DIT) to compute DLO-aware coarse paths efficiently. This global path is tracked by a local controller featuring Model Predictive Control (MPC) wrapped in a Control Barrier Function (CBF) safety filter. Crucially, CBF employs a mode-switching mechanism driven by forcebased contact estimation to allow safe interactions with fixtures while rigorously preventing other collisions. Built purely on the MuJoCo API utilizing the adapted Discrete Elastic Rods (DER) cable model, this CPU-efficient, minimal-middleware prototype serves as a highly scalable validation testbed with a clear path to future real-robot deployment.
+This thesis proposes a novel hierarchical collision-avoidance framework for dual-arm cable routing in simulation. The architecture utilizes a global planner extending advanced, highdimensional planners such as Just-in-Time (JIT) or Direction Informed Trees (DIT*) to compute DLO-aware coarse paths efficiently. This global path is tracked by a local controller featuring Model Predictive Control (MPC) wrapped in a Control Barrier Function (CBF) safety filter. Crucially, CBF employs a mode-switching mechanism driven by forcebased contact estimation to allow safe interactions with fixtures while rigorously preventing other collisions. Built purely on the MuJoCo API utilizing the adapted Discrete Elastic Rods (DER) cable model, this CPU-efficient, minimal-middleware prototype serves as a highly scalable validation testbed with a clear path to future real-robot deployment.
 
 **Keywords**: Dual-Arm Manipulation, Deformable Linear Objects (DLO), Hierarchical Collision Avoidance, Just-in-Time Informed Trees (JIT), Control Barrier Functions (CBF), Mode-Switching, Contact-Aware Safety, MuJoCo.
 
@@ -37,14 +37,14 @@ This thesis proposes a novel hierarchical collision-avoidance framework for dual
 
 Routing cables through environmental fixtures requires precise dual-arm coordination to maintain proper tension and guide the infinite-dimensional DLO. Traditional motion planners struggle in this domain due to the massive configuration space (14-DoF for two Franka Panda arms plus the DLO state).
 
-To ensure safety without relying on computationally prohibitive full-physics rollouts, the system must navigate a complex collision landscape. It must definitively avoid arm–arm self-collisions and arm/cable–environment collisions. However, because the task explicitly requires the DLO to touch and snap into routing clips, the system cannot treat all environmental contacts as failures. The core problem is creating a hierarchical architecture that merges fast global pathfinding with a local safety layer capable of contact-aware collision avoidance (distinguishing good clip insertions from bad collisions).
+To ensure safety without relying on computationally prohibitive full-physics rollouts, the system must navigate a complex collision landscape. It must definitively avoid arm–arm self-collisions and arm/cable environment collisions. However, because the task explicitly requires the DLO to touch and snap into routing clips, the system cannot treat all environmental contacts as failures. The core problem is creating a hierarchical architecture that merges fast global pathfinding with a local safety layer capable of contact-aware collision avoidance (distinguishing good clip insertions from bad collisions).
 
 ### 2.2 Objectives
 
 The primary objective is to design a hierarchical collision-avoidance framework for dual-arm cable routing in simulation, utilizing realistic DLO models and scalable planners, with a clear path to real-robot deployment. Specific objectives include:
 
 1. **Simulation Layer**: Build a clean, minimal-middleware research prototype directly around the MuJoCo API using the adapted DER model to simulate realistic cable bending, twisting, and sagging without requiring GPU acceleration.
-2. **Global Planning (Level 1)**: Implement a DLO-aware global planner using JIT or DITstyle algorithms to significantly reduce planning time in the 14-DoF + DLO space, using a catenary-aware cost function.
+2. **Global Planning (Level 1)**: Implement a DLO-aware global planner using DIT* or JIT style algorithms to significantly reduce planning time in the 14-DoF + DLO space, using a catenary-aware cost function.
 3. **Local Control & Safety (Level 2)**: Develop an MPC local controller wrapped with a CBF QP to track the global path while strictly enforcing four safety constraints: arm–arm, arm–environment, cable–environment, and DLO overstretch limits.
 4. **Contact-Aware Interaction**: Integrate mode-switching logic into the CBF, allowing the system to temporarily relax specific environmental collision constraints during force-validated clip insertions.
 
@@ -52,7 +52,7 @@ The primary objective is to design a hierarchical collision-avoidance framework 
 
 Recent DLO manipulation studies strongly advocate for hierarchical systems consisting of a global planner for coarse motion and a local controller for responsive shaping. Yu et al. (2023) utilized this exact architecture, employing MPC with artificial potential fields to achieve whole-body obstacle avoidance during dual-arm manipulation.
 
-However, standard global planners like RRT scale poorly in such high-dimensional spaces. Recent TUM-AIR group developments, specifically Direction Informed Trees (DIT*) and Justin-Time Informed Trees (JIT*), drastically reduce global planning times by minimizing unnecessary collision checks. This thesis seeks to extend these planners, which are currently focused on rigid objects, to include DLO-inclusive collision checking.
+However, standard global planners like RRT scale poorly in such high-dimensional spaces. Recent TUM-AIR group developments, specifically Direction Informed Trees (DIT*) and Justin-Time Informed Trees (JIT), drastically reduce global planning times by minimizing unnecessary collision checks. This thesis seeks to extend these planners, which are currently focused on rigid objects, to include DLO-inclusive collision checking.
 
 For local safety, Control Barrier Functions (CBFs) provide mathematical guarantees for collision avoidance. Furthermore, Zhu et al. (2019) and Chen et al. (2023, 2024) have demonstrated that explicitly exploiting environmental contacts and utilizing forcedependent state estimation is vital for complex shaping tasks. This project unifies these concepts, utilizing mode-switching CBFs to merge guaranteed collision avoidance with necessary fixture interaction.
 
@@ -64,11 +64,11 @@ To ensure maximum CPU performance and match state-of-the-art simulation-first pi
 
 The environment will feature a dual arm `bi-frankapanda.xml` MJCF base. The cable will be simulated using the `qj25/adapteddlomuj` Discrete Elastic Rods (DER) implementation. This approach replaces native MuJoCo composite objects, offering vastly superior bending/twisting mechanics critical for accurate collision checking during routing.
 
-### 4.2 Level 1: Global Motion Planner (JIT/DIT)
+### 4.2 Level 1: Global Motion Planner (DIT* or JIT)
 
 The global layer will generate a coarse, collision-free path.
 
-- **Algorithm Base**: The system will use the TUM group's DIT implementation (already validated on dual-arm cable routing tasks) or the DLOplanning2 CBiRRT as a baseline, upgrading to JIT if the source is available.
+- **Algorithm Base**: The system will use the TUM group's DIT* implementation (already validated on dual-arm cable routing tasks) or the DLOplanning2 CBiRRT as a baseline, upgrading to JIT if the source is available.
 - **Collision & Cost**: During sampling, MuJoCo's native contact geometry (capsules and spheres) will be used to check the 14-DoF arms, the DER cable geometry, and fixtures. A catenary-aware cost function will penalize states where the predicted DLO sag approaches obstacles.
 
 ### 4.3 Level 2: Local Controller (MPC + Mode-Switching CBF)

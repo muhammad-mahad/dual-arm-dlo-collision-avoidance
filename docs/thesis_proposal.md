@@ -25,10 +25,10 @@
 
 ## 1. Abstract
 
-The manipulation of deformable linear objects (DLOs), such as cables, is a crucial step in industrial manufacturing. Unlike rigid bodies, routing a DLO through constrained environments using dual-arm manipulation introduces severe motion planning challenges. A robust system must handle three distinct safety aspects simultaneously:
-(1) arm–arm self-collision
-(2) arm/cable environment collision
-(3) contact-aware fixture interaction (distinguishing necessary, desired clip insertions from unintended collisions)
+The manipulation of deformable linear objects (DLOs), such as cables, is a crucial step in industrial manufacturing. Unlike rigid bodies, routing a DLO through constrained environments using dual-arm manipulation introduces severe motion planning challenges. A robust system must handle three distinct safety aspects simultaneously: \
+(1) arm–arm self-collision \
+(2) arm/cable environment collision \
+(3) contact-aware fixture interaction (distinguishing necessary, desired clip insertions from unintended collisions) \
 Currently, no existing framework integrates all three capabilities into a unified, computationally scalable system.
 
 This thesis proposes a novel hierarchical collision-avoidance framework for dual-arm cable routing in simulation. The architecture utilizes a global planner extending advanced, highdimensional planners such as Just-in-Time (JIT) or Direction Informed Trees (DIT*) to compute DLO-aware coarse paths efficiently. This global path is tracked by a local controller featuring Model Predictive Control (MPC) wrapped in a Control Barrier Function (CBF) safety filter. Crucially, CBF employs a mode-switching mechanism driven by forcebased contact estimation to allow safe interactions with fixtures while rigorously preventing other collisions. Built purely on the MuJoCo API utilizing the adapted Discrete Elastic Rods (DER) cable model, this CPU-efficient, minimal-middleware prototype serves as a highly scalable validation testbed with a clear path to future real-robot deployment.

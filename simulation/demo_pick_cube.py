@@ -299,8 +299,15 @@ def main():
     LC = slice(0, 7);  LG = 7;  LQ = slice(0, 7)
     RC = slice(8,15);  RG = 15; RQ = slice(9,16)
 
+    start_sim = False
+    def key_callback(keycode):
+        nonlocal start_sim
+        if chr(keycode) == ' ':
+            start_sim = True
+
     with mujoco.viewer.launch_passive(
             model=model, data=data,
+            key_callback=key_callback,
             show_left_ui=False, show_right_ui=False) as viewer:
 
         mujoco.mjv_defaultFreeCamera(model, viewer.cam)
@@ -308,6 +315,17 @@ def main():
         lhq = data.qpos[0:7].copy()
         rhq = data.qpos[9:16].copy()
         reset_cube(model, data)
+
+        viewer.sync()
+        print("\n" + "="*50)
+        print("  Simulation Ready")
+        print("  1. Reposition/Resize window for recording")
+        print("  2. Press SPACE within the viewer to start")
+        print("="*50 + "\n")
+
+        while viewer.is_running() and not start_sim:
+            viewer.sync()
+            rate.sleep()
 
         # Quaternions with rotation logic preserved
         q_r_down = topdown_quat_for_site(model, data, "attachment_site_right")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MuJoCo + mink  ·  Dual-arm pick-and-handover demo
+MuJoCo + mink  ·  Month 1 Baseline: Rigid-Body Dual-Arm Pick, Contact-Aware Handover, and Place
 """
 
 from pathlib import Path
@@ -239,7 +239,7 @@ def wait_for_left_grip(target_pos, contact_thr,
                        moc_r, q_r_side, handover_r,
                        rq, rate, viewer,
                        timeout_secs=25.0):
-    print(f"\n>>> WAIT_FOR_LEFT  target={np.round(target_pos,3)}")
+    print(f"\n>>> P8 · Contact-Aware Handover (Distance Sensing to Target={np.round(target_pos,3)})")
     t0 = data.time
     while viewer.is_running():
         data.mocap_pos[moc_l]  = target_pos.copy()
@@ -264,7 +264,7 @@ def wait_for_left_grip(target_pos, contact_thr,
         print(f"\r    left dist={dist*1000:.1f}mm", end="", flush=True)
 
         if dist <= contact_thr:
-            print(f"\n    ✓ Contact confirmed {dist*1000:.1f}mm")
+            print(f"\n    ✓ Contact-Aware logic triggered at {dist*1000:.1f}mm")
             return data.qpos[0:7].copy()
         if (data.time - t0) > timeout_secs:
             print(f"\n    ⚠ Timeout at {dist*1000:.1f}mm")
@@ -359,7 +359,7 @@ def main():
                         rate=rate, viewer=viewer, **kw)
 
         # P0-P2: right open (default frozen_grip_val=255 left open — fine)
-        move_single(above_cube, q_r_down, "P0 · Right → above cube",
+        move_single(above_cube, q_r_down, "P0 · Right approaches cube (top-down orientation)",
                     ee_task=task_r, tasks=tasks_r, gripper_val=255.0,
                     pos_thr=0.025, ori_thr=0.25, timeout_secs=20.0, **r())
 
@@ -373,32 +373,32 @@ def main():
 
         rq = data.qpos[9:16].copy()
         actuate_grippers(model, data, rate, viewer,
-                         lhq, rq, 255.0, 0.0, 160, "P3 · Right CLOSE")
+                         lhq, rq, 255.0, 0.0, 160, "P3 · Right gripper closes — firm grasp established")
         rq = data.qpos[9:16].copy()
 
         # P4-P5: right CLOSED — pass frozen_grip_val=255.0 (left open, default)
         # gripper_val=0.0 controls RIGHT (active arm) → CLOSED
-        move_single(lift, q_r_down, "P4 · Right → lift  [CLOSED]",
+        move_single(lift, q_r_down, "P4 · Right lifts cube",
                     ee_task=task_r, tasks=tasks_r,
                     gripper_val=0.0,
                     pos_thr=0.015, ori_thr=0.18, timeout_secs=15.0, **r())
         rq = data.qpos[9:16].copy()
 
-        move_single(lift, q_r_side, "P5a · Right wrist rotate  [CLOSED]",
+        move_single(lift, q_r_side, "P5a · Right wrist reorients to side-grip",
                     ee_task=task_r, tasks=tasks_r,
                     gripper_val=0.0,
                     pos_thr=0.020, ori_thr=0.12,
                     timeout_secs=15.0, damping=1e-2, **r())
         rq = data.qpos[9:16].copy()
 
-        move_single(handover_r, q_r_side, "P5b · Right → handover  [CLOSED]",
+        move_single(handover_r, q_r_side, "P5b · Right moves to handover position",
                     ee_task=task_r, tasks=tasks_r,
                     gripper_val=0.0,
                     pos_thr=0.012, ori_thr=0.18, timeout_secs=20.0, **r())
         rq = data.qpos[9:16].copy()
 
         # P6-P7: LEFT moves, RIGHT frozen CLOSED → right_grip_val=0.0
-        move_single(left_far, q_l_side, "P6 · Left → far (14cm)  [R:CLOSED]",
+        move_single(left_far, q_l_side, "P6 · Left arm approaches (14cm)",
                     ee_task=task_l, tasks=tasks_l,
                     gripper_val=255.0,
                     pos_thr=0.020, ori_thr=0.20, timeout_secs=18.0,
@@ -429,7 +429,7 @@ def main():
         # Close left first with dedicated actuate call (200 steps)
         actuate_grippers(model, data, rate, viewer,
                          lq, rq, 0.0, 0.0, 300,
-                         "P9 · Both CLOSE — firm clamp")
+                         "P9 · Synchronized clamping — both grippers close")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
@@ -449,7 +449,7 @@ def main():
         # P10: right opens — FIRST TIME since P3
         actuate_grippers(model, data, rate, viewer,
                          lq, rq, 0.0, 255.0, 120,
-                         "P10 · Right OPEN → transferred")
+                         "P10 · Right gripper opens (handover complete)")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
@@ -465,7 +465,7 @@ def main():
         rq = data.qpos[9:16].copy()
 
         # P11a: Left moves SIDEWAYS first — same height, no vertical change
-        move_single(carry_away, q_l_side, "P11a · Left moves sideways",
+        move_single(carry_away, q_l_side, "P11a · Left arm moves sideways at constant height (prevents inertial slip)",
                     ee_task=task_l, tasks=tasks_l,
                     gripper_val=0.0,
                     pos_thr=0.012, ori_thr=0.20, timeout_secs=12.0,
@@ -501,7 +501,7 @@ def main():
 
         # P12: Right retreats — left arm FULLY FROZEN at current lq
         # NEVER use **r() here — r() passes lhq (home) as frozen, not current lq
-        print("\n>>> P12 · Right retreats  [Left FROZEN at current position]")
+        print("\n>>> P12 · Right arm retreats — left arm fully frozen at current joint state")
         right_retreat_pos  = np.array([0.30, 0.20, 0.55])
         data.mocap_pos[moc_r]  = right_retreat_pos
         data.mocap_quat[moc_r] = q_r_down.copy()
@@ -542,7 +542,7 @@ def main():
         carry_smooth(
             waypoints=[wp1, wp2, wp3],
             quat=q_l_side,
-            label="P13-15 · Left carry + place",
+            label="P13-15 · Left carry via smooth 1mm waypoint interpolation to table center",
             model=model, data=data, cfg=cfg,
             task=task_l, site_id=site_l,
             mocap_id=moc_l, mocap_name="target_left",
@@ -559,7 +559,7 @@ def main():
         rq = data.qpos[9:16].copy()
 
         # P16: Settle — weight transfers to table
-        print("\n>>> P16 · Settle on table")
+        print("\n>>> P16 · Cube settles on table")
         for _ in range(200):
             if not viewer.is_running(): break
             data.ctrl[0:7]  = lq;  data.ctrl[7]  = 0.0
@@ -573,7 +573,7 @@ def main():
         # P17: Open left gripper — release cube
         actuate_grippers(model, data, rate, viewer,
                          lq, rq, 255.0, 255.0, 160,
-                         "P17 · Left OPEN → cube placed")
+                         "P17 · Left gripper opens (cube placed)")
         lq = data.qpos[0:7].copy()
         rq = data.qpos[9:16].copy()
 
@@ -584,7 +584,7 @@ def main():
         carry_smooth(
             waypoints=[wp_up, wp_back],
             quat=q_l_side,
-            label="P18 · Left retreats",
+            label="P18 · Left arm retreats",
             model=model, data=data, cfg=cfg,
             task=task_l, site_id=site_l,
             mocap_id=moc_l, mocap_name="target_left",

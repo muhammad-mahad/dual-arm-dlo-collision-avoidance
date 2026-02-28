@@ -4,3 +4,4 @@ venv/
 .DS_Store
 *.pdf
 *.txt
+!requirements.txt

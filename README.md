@@ -31,7 +31,7 @@ The current codebase implements a complete rigid-body **Month 1 Baseline**:
 
 - ✅ Autonomous pick-up from table (right arm, top-down grasp)
 - ✅ Contact-aware handover using distance-threshold sensing
-- ✅ Smooth, millimeter-scale trajectory interpolation (no joint trajectory pre-computation)
+- ✅ Smooth, millimeter-scale minimum-jerk trajectory interpolation (no joint trajectory pre-computation)
 - ✅ Continuous task-space control via **mink differential IK**
 - ✅ Freeze-and-freeze gripper isolation to prevent grip loss
 
@@ -144,7 +144,7 @@ cd simulation
 python demo_pick_cube.py
 ```
 
-A MuJoCo viewer window will open and the 18-phase dual-arm pick-handover-place sequence will begin automatically.
+A MuJoCo viewer window will open and the 19-phase dual-arm pick-handover-place sequence will begin automatically.
 
 ---
 
@@ -155,13 +155,13 @@ A MuJoCo viewer window will open and the 18-phase dual-arm pick-handover-place s
 | P0–P2 | Right arm approaches and grasps cube (top-down orientation) |
 | P3 | Right gripper closes: firm grasp established |
 | P4–P5 | Right arm lifts cube, wrist reorients to side-grip, moves to handover position |
-| P6–P8 | Left arm approaches with contact sensing (distance threshold: 10 mm) |
+| P6–P8 | Left arm approaches with contact sensing |
 | P9–P10 | Synchronized clamping: both grippers close, right gripper opens (handover complete) |
-| P11a–P11b | Left arm moves sideways at constant height, then lifts (prevents inertial slip) |
-| P12 | Right arm retreats while left arm is fully frozen at current joint state |
-| P13–P15 | Left carry via smooth 1 mm waypoint interpolation to table center |
-| P16–P17 | Cube settles on table, left gripper opens |
-| P18 | Left arm retreats |
+| P11 | Left arm pulls back and moves away from handover |
+| P12 | Right arm retreats while left arm holds the cube |
+| P13–P15 | Left carries cube above table, places it, and allowed to settle |
+| P17 | Left gripper opens (cube placed) |
+| P18–P19 | Left and right arms retreat to home positions |
 
 ---
 

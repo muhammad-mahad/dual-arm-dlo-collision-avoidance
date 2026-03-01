@@ -1,4 +1,4 @@
-<mujoco model="dual_panda_scene">
+<mujoco model="Dual-Arm Pick and Place">
   <include file="dual_panda.xml"/>
 
   <option gravity="0 0 -9.81"/>

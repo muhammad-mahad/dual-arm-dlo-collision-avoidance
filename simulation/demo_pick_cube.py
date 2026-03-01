@@ -3,12 +3,18 @@
 MuJoCo + mink  ·  Month 1 Baseline: Rigid-Body Dual-Arm Pick, Contact-Aware Handover, and Place
 """
 
+from dataclasses import dataclass, field
 from pathlib import Path
+
 import mujoco
 import mujoco.viewer
 import numpy as np
 from loop_rate_limiters import RateLimiter
 import mink
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths & world geometry
+# ─────────────────────────────────────────────────────────────────────────────
 
 _HERE       = Path(__file__).parent
 _MODEL_PATH = _HERE / "franka_emika_panda" / "dual_panda_scene.xml"
@@ -18,10 +24,52 @@ CUBE_HALF         = 0.025
 HANDOVER_POS      = np.array([0.00, -0.28, 0.52])
 LIFT_HEIGHT       = 0.22
 GRIP_OFFSET_R     = 0.04
-GRIP_OFFSET_L     = 0.00
 CONTACT_THRESHOLD = 0.010
-TABLE_TOP         = 0.285          # z height of table surface
-TABLE_CENTER      = np.array([0.0, -0.45, TABLE_TOP])  # center of table
+TABLE_TOP         = 0.285
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Control constants
+# ─────────────────────────────────────────────────────────────────────────────
+
+GRIPPER_OPEN   = 255.0
+GRIPPER_CLOSED = 0.0
+
+LEFT_CTRL  = slice(0, 7)
+LEFT_GRIP  = 7
+LEFT_QPOS  = slice(0, 7)
+RIGHT_CTRL = slice(8, 15)
+RIGHT_GRIP = 15
+RIGHT_QPOS = slice(9, 16)
+
+DEFAULT_DAMPING = 1e-3
+CARRY_DAMPING   = 5e-2
+DEFAULT_POS_THR = 0.010
+DEFAULT_ORI_THR = 0.15
+DEFAULT_TIMEOUT = 18.0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Arm context — bundles all per-arm identity into a single object
+# ─────────────────────────────────────────────────────────────────────────────
+
+@dataclass
+class ArmContext:
+    """Everything needed to command one arm while freezing the other."""
+    model: object
+    data: object
+    cfg: object
+    site_id: int
+    mocap_id: int
+    mocap_name: str
+    ctrl_slice: slice
+    qpos_slice: slice
+    grip_index: int
+    frozen_ctrl: slice
+    frozen_grip: int
+    rate: object
+    viewer: object
+    frozen_vals: np.ndarray = field(default_factory=lambda: np.zeros(7))
+    frozen_grip_val: float = GRIPPER_OPEN
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -98,178 +146,248 @@ def reset_cube(model, data):
     print(f"[INFO] Initialized Cube position to {CUBE_WORLD_POS}")
 
 
+def snapshot_joints(data):
+    """Return (left_joints, right_joints) copies of current joint positions."""
+    return data.qpos[LEFT_QPOS].copy(), data.qpos[RIGHT_QPOS].copy()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
-# IK Mocap Control
+# Trajectory interpolation
 # ─────────────────────────────────────────────────────────────────────────────
 
-def move_single(pos, quat, label,
-                model, data, cfg,
-                ee_task, tasks,
-                site_id, mocap_id, mocap_name,
-                active_ctrl, active_qpos,
-                frozen_ctrl, frozen_vals,
-                active_grip, frozen_grip,
-                rate, viewer,
-                gripper_val=255.0,
-                frozen_grip_val=255.0,
-                pos_thr=0.010, ori_thr=0.15,
-                timeout_secs=18.0,
-                damping=1e-3):
-    print(f"\n>>> {label}  →  {np.round(pos, 3)}")
-    data.mocap_pos[mocap_id]  = pos.copy()
-    data.mocap_quat[mocap_id] = quat.copy()
-    mujoco.mj_forward(model, data)
-    ee_task.set_target(mink.SE3.from_mocap_name(model, data, mocap_name))
-    t0 = data.time
-    while viewer.is_running():
-        data.mocap_pos[mocap_id]  = pos.copy()
-        data.mocap_quat[mocap_id] = quat.copy()
-        ee_task.set_target(mink.SE3.from_mocap_name(model, data, mocap_name))
-        vel = mink.solve_ik(cfg, tasks, rate.dt, "daqp", damping=damping)
-        cfg.integrate_inplace(vel, rate.dt)
-        data.ctrl[active_ctrl]  = cfg.q[active_qpos]
-        data.ctrl[active_grip]  = gripper_val
-        data.ctrl[frozen_ctrl]  = frozen_vals
-        data.ctrl[frozen_grip]  = frozen_grip_val
-        mujoco.mj_step(model, data)
-        viewer.sync()
-        rate.sleep()
-        pos_err = np.linalg.norm(data.site_xpos[site_id] - pos)
+def minimum_jerk(t):
+    """Minimum-jerk profile: zero velocity and acceleration at endpoints."""
+    return 10 * t**3 - 15 * t**4 + 6 * t**5
+
+
+def quat_slerp(q0, q1, t):
+    """Spherical linear interpolation between two quaternions."""
+    q0 = q0 / np.linalg.norm(q0)
+    q1 = q1 / np.linalg.norm(q1)
+    dot = np.dot(q0, q1)
+    if dot < 0:
+        q1 = -q1
+        dot = -dot
+    if dot > 0.9995:
+        result = q0 + t * (q1 - q0)
+        return result / np.linalg.norm(result)
+    theta = np.arccos(np.clip(dot, -1, 1))
+    sin_theta = np.sin(theta)
+    return (np.sin((1 - t) * theta) / sin_theta) * q0 + \
+           (np.sin(t * theta) / sin_theta) * q1
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Motion primitives
+# ─────────────────────────────────────────────────────────────────────────────
+
+def move_single(ctx, pos, quat, label, ee_task, tasks,
+                gripper_val=GRIPPER_OPEN,
+                pos_thr=DEFAULT_POS_THR, ori_thr=DEFAULT_ORI_THR,
+                timeout_secs=DEFAULT_TIMEOUT, damping=DEFAULT_DAMPING):
+    """Move the active arm to a target pose while freezing the other arm."""
+    print(f"\n>>> {label}  ->  {np.round(pos, 3)}")
+    ctx.data.mocap_pos[ctx.mocap_id]  = pos.copy()
+    ctx.data.mocap_quat[ctx.mocap_id] = quat.copy()
+    mujoco.mj_forward(ctx.model, ctx.data)
+    ee_task.set_target(mink.SE3.from_mocap_name(ctx.model, ctx.data, ctx.mocap_name))
+    t0 = ctx.data.time
+
+    while ctx.viewer.is_running():
+        ctx.data.mocap_pos[ctx.mocap_id]  = pos.copy()
+        ctx.data.mocap_quat[ctx.mocap_id] = quat.copy()
+        ee_task.set_target(mink.SE3.from_mocap_name(ctx.model, ctx.data, ctx.mocap_name))
+
+        vel = mink.solve_ik(ctx.cfg, tasks, ctx.rate.dt, "daqp", damping=damping)
+        ctx.cfg.integrate_inplace(vel, ctx.rate.dt)
+
+        ctx.data.ctrl[ctx.ctrl_slice]  = ctx.cfg.q[ctx.qpos_slice]
+        ctx.data.ctrl[ctx.grip_index]  = gripper_val
+        ctx.data.ctrl[ctx.frozen_ctrl] = ctx.frozen_vals
+        ctx.data.ctrl[ctx.frozen_grip] = ctx.frozen_grip_val
+
+        mujoco.mj_step(ctx.model, ctx.data)
+        # Reinforce frozen gripper after physics step (prevents solver drift)
+        ctx.data.ctrl[ctx.frozen_grip] = ctx.frozen_grip_val
+        ctx.viewer.sync()
+        ctx.rate.sleep()
+
+        pos_err = np.linalg.norm(ctx.data.site_xpos[ctx.site_id] - pos)
         q_now   = np.empty(4)
-        mujoco.mju_mat2Quat(q_now, data.site_xmat[site_id])
+        mujoco.mju_mat2Quat(q_now, ctx.data.site_xmat[ctx.site_id])
         ori_err = quat_error(q_now, quat)
+
         if pos_err <= pos_thr and ori_err <= ori_thr:
-            print(f"    ✓ Pos error: {pos_err*1000:.1f}mm  |  Ori error: {ori_err:.3f}rad")
+            print(f"    done  Pos: {pos_err*1000:.1f}mm | Ori: {ori_err:.3f}rad")
             return True
-        if (data.time - t0) > timeout_secs:
-            print(f"    ⚠ Timeout (Pos error: {pos_err*1000:.1f}mm | Ori error: {ori_err:.3f}rad)")
+        if (ctx.data.time - t0) > timeout_secs:
+            print(f"    timeout  Pos: {pos_err*1000:.1f}mm | Ori: {ori_err:.3f}rad")
             return False
     return False
 
 
-def carry_smooth(waypoints, quat, label,
-                 model, data, cfg,
-                 task, site_id,
-                 mocap_id, mocap_name,
-                 active_ctrl, active_qpos,
-                 frozen_ctrl, frozen_vals,
-                 active_grip, frozen_grip,
-                 frozen_grip_val,
-                 rate, viewer,
-                 step_size=0.003,      # 3mm per IK step, which ensures a very smooth motion
-                 damping=5e-2,
-                 settle_steps=30):
-    """
-    Move through a list of waypoints by interpolating the mocap target
-    in tiny increments. It never jumps and the gripper stays firmly closed.
-    """
+def carry_smooth(ctx, waypoints, quat, label, task,
+                 quat_end=None, step_size=0.003,
+                 damping=CARRY_DAMPING, settle_steps=30):
+    """Move through waypoints using minimum-jerk interpolation.
+    Gripper stays closed throughout for stable carrying.
+
+    If quat_end is given, orientation is smoothly SLERPed from quat to
+    quat_end over the entire trajectory — this allows safe mid-carry
+    reorientation without abrupt contact changes."""
     print(f"\n>>> {label}  ({len(waypoints)} waypoints)")
-    current = np.array(data.mocap_pos[mocap_id], dtype=float)
+
+    # Start from actual EE position to prevent backward jumps
+    current = np.array(ctx.data.site_xpos[ctx.site_id], dtype=float)
+    ctx.data.mocap_pos[ctx.mocap_id] = current.copy()
+
+    # Pre-compute cumulative segment distances for global SLERP progress
+    seg_dists = []
+    prev = current.copy()
+    for wp in waypoints:
+        d = np.linalg.norm(np.array(wp, dtype=float) - prev)
+        seg_dists.append(d)
+        prev = np.array(wp, dtype=float)
+    total_path = sum(seg_dists)
+    cumulative = 0.0
 
     for wp_idx, target in enumerate(waypoints):
         target = np.array(target, dtype=float)
         total_dist = np.linalg.norm(target - current)
         if total_dist < 1e-4:
+            cumulative += seg_dists[wp_idx]
             continue
         n_steps = max(1, int(total_dist / step_size))
-        print(f"    WP{wp_idx+1}: {np.round(target,3)}  dist={total_dist*1000:.1f}mm  steps={n_steps}")
+        print(f"    WP{wp_idx+1}: {np.round(target,3)}  "
+              f"dist={total_dist*1000:.1f}mm  steps={n_steps}")
 
         for i in range(1, n_steps + 1):
-            if not viewer.is_running():
+            if not ctx.viewer.is_running():
                 return
-            # Interpolate mocap target linearly
-            alpha = i / n_steps
+            alpha = minimum_jerk(i / n_steps)
             interp_pos = current + alpha * (target - current)
-            data.mocap_pos[mocap_id]  = interp_pos
-            data.mocap_quat[mocap_id] = quat.copy()
-            task.set_target(mink.SE3.from_mocap_name(model, data, mocap_name))
 
-            vel = mink.solve_ik(cfg, [task], rate.dt, "daqp", damping=damping)
-            cfg.integrate_inplace(vel, rate.dt)
+            # Compute orientation: fixed or SLERPed
+            if quat_end is not None and total_path > 1e-4:
+                global_t = (cumulative + alpha * total_dist) / total_path
+                interp_quat = quat_slerp(quat, quat_end, global_t)
+            else:
+                interp_quat = quat.copy()
 
-            data.ctrl[active_ctrl]  = cfg.q[active_qpos]
-            data.ctrl[active_grip]  = 0.0            # ALWAYS closed (hardcoded)
-            data.ctrl[frozen_ctrl]  = frozen_vals
-            data.ctrl[frozen_grip]  = frozen_grip_val
+            ctx.data.mocap_pos[ctx.mocap_id]  = interp_pos
+            ctx.data.mocap_quat[ctx.mocap_id] = interp_quat
+            task.set_target(mink.SE3.from_mocap_name(ctx.model, ctx.data, ctx.mocap_name))
 
-            mujoco.mj_step(model, data)
-            viewer.sync()
-            rate.sleep()
+            vel = mink.solve_ik(ctx.cfg, [task], ctx.rate.dt, "daqp", damping=damping)
+            ctx.cfg.integrate_inplace(vel, ctx.rate.dt)
 
-        # Settle at each waypoint
+            ctx.data.ctrl[ctx.ctrl_slice]  = ctx.cfg.q[ctx.qpos_slice]
+            ctx.data.ctrl[ctx.grip_index]  = GRIPPER_CLOSED
+            ctx.data.ctrl[ctx.frozen_ctrl] = ctx.frozen_vals
+            ctx.data.ctrl[ctx.frozen_grip] = ctx.frozen_grip_val
+
+            mujoco.mj_step(ctx.model, ctx.data)
+            ctx.viewer.sync()
+            ctx.rate.sleep()
+
+        # Settle at waypoint with final orientation
+        final_quat = quat_slerp(quat, quat_end, (cumulative + total_dist) / total_path) \
+                     if quat_end is not None and total_path > 1e-4 else quat
         for _ in range(settle_steps):
-            if not viewer.is_running():
+            if not ctx.viewer.is_running():
                 return
-            data.ctrl[active_ctrl]  = cfg.q[active_qpos]
-            data.ctrl[active_grip]  = 0.0
-            data.ctrl[frozen_ctrl]  = frozen_vals
-            data.ctrl[frozen_grip]  = frozen_grip_val
-            mujoco.mj_step(model, data)
-            viewer.sync()
-            rate.sleep()
+            ctx.data.mocap_quat[ctx.mocap_id] = final_quat
+            ctx.data.ctrl[ctx.ctrl_slice]  = ctx.cfg.q[ctx.qpos_slice]
+            ctx.data.ctrl[ctx.grip_index]  = GRIPPER_CLOSED
+            ctx.data.ctrl[ctx.frozen_ctrl] = ctx.frozen_vals
+            ctx.data.ctrl[ctx.frozen_grip] = ctx.frozen_grip_val
+            mujoco.mj_step(ctx.model, ctx.data)
+            ctx.viewer.sync()
+            ctx.rate.sleep()
 
+        cumulative += total_dist
         current = target.copy()
-        print(f"    ✓ Waypoint {wp_idx+1}/{len(waypoints)} reached")
+        print(f"    done  WP {wp_idx+1}/{len(waypoints)}")
 
 
 def actuate_grippers(model, data, rate, viewer,
                      left_joints, right_joints,
                      left_grip, right_grip,
                      steps=160, label=""):
+    """Run physics with fixed joint positions and specified gripper values."""
     if label:
         print(f"\n>>> {label}")
     for _ in range(steps):
         if not viewer.is_running():
             break
-        data.ctrl[0:7]  = left_joints
-        data.ctrl[7]    = left_grip
-        data.ctrl[8:15] = right_joints
-        data.ctrl[15]   = right_grip
+        data.ctrl[LEFT_CTRL]  = left_joints
+        data.ctrl[LEFT_GRIP]  = left_grip
+        data.ctrl[RIGHT_CTRL] = right_joints
+        data.ctrl[RIGHT_GRIP] = right_grip
         mujoco.mj_step(model, data)
         viewer.sync()
         rate.sleep()
     if label:
-        print("    ✓ Gripper actuation finished")
+        print("    done")
 
 
-def wait_for_left_grip(target_pos, contact_thr,
-                       model, data, cfg,
-                       task_l, site_l,
-                       moc_l, q_l_side,
-                       moc_r, q_r_side, handover_r,
-                       rq, rate, viewer,
-                       timeout_secs=25.0):
-    print(f"\n>>> P8 · Contact-Aware Handover (Distance Sensing to Target={np.round(target_pos,3)})")
-    t0 = data.time
-    while viewer.is_running():
-        data.mocap_pos[moc_l]  = target_pos.copy()
-        data.mocap_quat[moc_l] = q_l_side.copy()
-        data.mocap_pos[moc_r]  = handover_r.copy()
-        data.mocap_quat[moc_r] = q_r_side.copy()
-
-        task_l.set_target(mink.SE3.from_mocap_name(model, data, "target_left"))
-        vel = mink.solve_ik(cfg, [task_l], rate.dt, "daqp", damping=1e-3)
-        cfg.integrate_inplace(vel, rate.dt)
-
-        data.ctrl[0:7]  = cfg.q[0:7]
-        data.ctrl[7]    = 255.0   # left open
-        data.ctrl[8:15] = rq      # right frozen
-        data.ctrl[15]   = 0.0     # RIGHT CLOSED (hardcoded, cannot be overridden)
-
+def settle(model, data, rate, viewer, lq, rq,
+           left_grip=GRIPPER_CLOSED, right_grip=GRIPPER_CLOSED,
+           steps=120, label=""):
+    """Hold both arms frozen for N physics steps to let contacts stabilize."""
+    if label:
+        print(f"\n>>> {label}")
+    for _ in range(steps):
+        if not viewer.is_running():
+            break
+        data.ctrl[LEFT_CTRL]  = lq
+        data.ctrl[LEFT_GRIP]  = left_grip
+        data.ctrl[RIGHT_CTRL] = rq
+        data.ctrl[RIGHT_GRIP] = right_grip
         mujoco.mj_step(model, data)
         viewer.sync()
         rate.sleep()
+    if label:
+        print(f"    done  ({steps} steps)")
 
-        dist = np.linalg.norm(data.site_xpos[site_l] - target_pos)
+
+def wait_for_left_grip(ctx, target_pos, contact_thr,
+                       task_l, q_l_side,
+                       moc_r, q_r_side, handover_r, rq,
+                       timeout_secs=25.0):
+    """Drive the left arm toward target_pos until distance <= contact_thr."""
+    print(f"\n>>> P8 - Contact-Aware Handover (target={np.round(target_pos,3)})")
+    t0 = ctx.data.time
+
+    while ctx.viewer.is_running():
+        ctx.data.mocap_pos[ctx.mocap_id]  = target_pos.copy()
+        ctx.data.mocap_quat[ctx.mocap_id] = q_l_side.copy()
+        ctx.data.mocap_pos[moc_r]         = handover_r.copy()
+        ctx.data.mocap_quat[moc_r]        = q_r_side.copy()
+
+        task_l.set_target(mink.SE3.from_mocap_name(ctx.model, ctx.data, "target_left"))
+        vel = mink.solve_ik(ctx.cfg, [task_l], ctx.rate.dt, "daqp", damping=DEFAULT_DAMPING)
+        ctx.cfg.integrate_inplace(vel, ctx.rate.dt)
+
+        ctx.data.ctrl[LEFT_CTRL]  = ctx.cfg.q[LEFT_QPOS]
+        ctx.data.ctrl[LEFT_GRIP]  = GRIPPER_OPEN
+        ctx.data.ctrl[RIGHT_CTRL] = rq
+        ctx.data.ctrl[RIGHT_GRIP] = GRIPPER_CLOSED
+
+        mujoco.mj_step(ctx.model, ctx.data)
+        ctx.viewer.sync()
+        ctx.rate.sleep()
+
+        dist = np.linalg.norm(ctx.data.site_xpos[ctx.site_id] - target_pos)
         print(f"\r    left dist={dist*1000:.1f}mm", end="", flush=True)
 
         if dist <= contact_thr:
-            print(f"\n    ✓ Contact-Aware logic triggered at {dist*1000:.1f}mm")
-            return data.qpos[0:7].copy()
-        if (data.time - t0) > timeout_secs:
-            print(f"\n    ⚠ Timeout: Failed to confirm contact (Stopped at {dist*1000:.1f}mm)")
-            return data.qpos[0:7].copy()
-    return data.qpos[0:7].copy()
+            print(f"\n    done  Contact at {dist*1000:.1f}mm")
+            return ctx.data.qpos[LEFT_QPOS].copy()
+        if (ctx.data.time - t0) > timeout_secs:
+            print(f"\n    timeout  Stopped at {dist*1000:.1f}mm")
+            return ctx.data.qpos[LEFT_QPOS].copy()
+    return ctx.data.qpos[LEFT_QPOS].copy()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -285,7 +403,7 @@ def main():
         frame_name="attachment_site_right", frame_type="site",
         position_cost=1.0, orientation_cost=0.5, lm_damping=1.0)
     task_l = mink.FrameTask(
-        frame_name="attachment_site_left",  frame_type="site",
+        frame_name="attachment_site_left", frame_type="site",
         position_cost=1.0, orientation_cost=0.5, lm_damping=1.0)
     task_p = mink.PostureTask(model=model, cost=1e-3)
 
@@ -296,8 +414,31 @@ def main():
     moc_r = model.body("target_right").mocapid[0]
     moc_l = model.body("target_left").mocapid[0]
 
-    LC = slice(0, 7);  LG = 7;  LQ = slice(0, 7)
-    RC = slice(8,15);  RG = 15; RQ = slice(9,16)
+    # ── ArmContext factories ──────────────────────────────────────────────
+
+    def right_ctx(frozen_vals=None, frozen_grip_val=GRIPPER_OPEN):
+        return ArmContext(
+            model=model, data=data, cfg=cfg,
+            site_id=site_r, mocap_id=moc_r, mocap_name="target_right",
+            ctrl_slice=RIGHT_CTRL, qpos_slice=RIGHT_QPOS, grip_index=RIGHT_GRIP,
+            frozen_ctrl=LEFT_CTRL, frozen_grip=LEFT_GRIP,
+            rate=rate, viewer=viewer,
+            frozen_vals=frozen_vals if frozen_vals is not None else lhq,
+            frozen_grip_val=frozen_grip_val,
+        )
+
+    def left_ctx(frozen_vals, frozen_grip_val=GRIPPER_CLOSED):
+        return ArmContext(
+            model=model, data=data, cfg=cfg,
+            site_id=site_l, mocap_id=moc_l, mocap_name="target_left",
+            ctrl_slice=LEFT_CTRL, qpos_slice=LEFT_QPOS, grip_index=LEFT_GRIP,
+            frozen_ctrl=RIGHT_CTRL, frozen_grip=RIGHT_GRIP,
+            rate=rate, viewer=viewer,
+            frozen_vals=frozen_vals,
+            frozen_grip_val=frozen_grip_val,
+        )
+
+    # ── Viewer launch & wait for SPACE ────────────────────────────────────
 
     start_sim = False
     def key_callback(keycode):
@@ -312,8 +453,11 @@ def main():
 
         mujoco.mjv_defaultFreeCamera(model, viewer.cam)
         mujoco.mj_resetDataKeyframe(model, data, model.key("home1").id)
-        lhq = data.qpos[0:7].copy()
-        rhq = data.qpos[9:16].copy()
+        lhq = data.qpos[LEFT_QPOS].copy()
+        rhq = data.qpos[RIGHT_QPOS].copy()
+        mujoco.mj_forward(model, data)
+        left_home_pos  = data.site_xpos[site_l].copy()
+        right_home_pos = data.site_xpos[site_r].copy()
         reset_cube(model, data)
 
         viewer.sync()
@@ -327,13 +471,16 @@ def main():
             viewer.sync()
             rate.sleep()
 
-        # Quaternions with rotation logic preserved
+        # ── Quaternions ───────────────────────────────────────────────────
+
         q_r_down = topdown_quat_for_site(model, data, "attachment_site_right")
         q_r_side = sidegrip_quat(approach_dir=[-1, 0, 0], y_hint=[0, 0, 1])
         q_l_side = sidegrip_quat(approach_dir=[+1, 0, 0], y_hint=[0, 1, 0])
 
         cfg.update(data.qpos)
         task_p.set_target_from_configuration(cfg)
+
+        # ── Target positions ──────────────────────────────────────────────
 
         cx, cy, cz = CUBE_WORLD_POS
         cube_top   = cz + CUBE_HALF
@@ -345,284 +492,237 @@ def main():
 
         hx, hy, hz = HANDOVER_POS
 
-        handover_r  = np.array([hx + GRIP_OFFSET_R, hy, hz])
-        left_far    = np.array([hx - 0.10, hy, hz])
-        left_close  = np.array([hx - 0.04, hy, hz])
-        left_grip_p = np.array([hx + 0.04, hy, hz])
-        carry       = np.array([-0.20, -0.15, hz + 0.15])
+        handover_r     = np.array([hx + GRIP_OFFSET_R, hy, hz])
+        left_far       = np.array([hx - 0.10, hy, hz])
+        left_close     = np.array([hx - 0.04, hy, hz])
+        left_grip_p    = np.array([hx + 0.04, hy, hz])
+        carry_away     = np.array([-0.20, -0.15, hz])
+        carry_up       = np.array([-0.20, -0.15, hz + 0.15])
+        right_retreat  = np.array([0.30, 0.20, 0.55])
+        above_place    = np.array([-0.04, -0.40, cube_top + 0.20])
+        place_pos      = np.array([-0.04, -0.35, TABLE_TOP + 0.012])
 
-        # Waypoints: sideways first (same height), then lift
-        carry_away = np.array([-0.20,  -0.15,  hz])        # same height as handover, move across
-        carry_up   = np.array([-0.20,  -0.15,  hz + 0.15]) # then lift up at final X/Y
+        # ── Phase execution ───────────────────────────────────────────────
 
-        # ── Helper shortcuts ─────────────────────────────────────────────────
-        # r() = right arm active, left frozen at lhq, left gripper=255 (open)
-        # l(rq, rg) = left arm active, right frozen at rq, right gripper=rg
-        def r(frz_l=None, **kw):
-            return dict(model=model, data=data, cfg=cfg,
-                        site_id=site_r, mocap_id=moc_r, mocap_name="target_right",
-                        active_ctrl=RC, active_qpos=RQ,
-                        frozen_ctrl=LC, frozen_vals=frz_l if frz_l is not None else lhq,
-                        active_grip=RG, frozen_grip=LG,
-                        rate=rate, viewer=viewer, **kw)
+        lq, rq = lhq.copy(), data.qpos[RIGHT_QPOS].copy()
 
+        def pick_cube():
+            """P0-P3: Right arm picks up the cube."""
+            nonlocal lq, rq
+            ctx = right_ctx()
 
-        def l(frz_r, right_grip_val=0.0, **kw):
-            return dict(model=model, data=data, cfg=cfg,
-                        site_id=site_l, mocap_id=moc_l, mocap_name="target_left",
-                        active_ctrl=LC, active_qpos=LQ,
-                        frozen_ctrl=RC, frozen_vals=frz_r,
-                        active_grip=LG, frozen_grip=RG,
-                        frozen_grip_val=right_grip_val,
-                        rate=rate, viewer=viewer, **kw)
+            move_single(ctx, above_cube, q_r_down,
+                        "P0 - Right approaches cube",
+                        ee_task=task_r, tasks=tasks_r,
+                        pos_thr=0.025, ori_thr=0.25, timeout_secs=20.0)
 
-        # P0-P2: right open (default frozen_grip_val=255 means left is open, which is fine)
-        move_single(above_cube, q_r_down, "P0 · Right approaches cube (top-down orientation)",
-                    ee_task=task_r, tasks=tasks_r, gripper_val=255.0,
-                    pos_thr=0.025, ori_thr=0.25, timeout_secs=20.0, **r())
+            move_single(ctx, pre_grasp, q_r_down,
+                        "P1 - Right at pre-grasp",
+                        ee_task=task_r, tasks=tasks_r,
+                        pos_thr=0.010, ori_thr=0.12, timeout_secs=15.0)
 
-        move_single(pre_grasp, q_r_down, "P1 · Right → pre-grasp",
-                    ee_task=task_r, tasks=tasks_r, gripper_val=255.0,
-                    pos_thr=0.010, ori_thr=0.12, timeout_secs=15.0, **r())
+            move_single(ctx, grasp, q_r_down,
+                        "P2 - Right at grasp position",
+                        ee_task=task_r, tasks=tasks_r,
+                        pos_thr=0.010, ori_thr=0.12, timeout_secs=12.0)
 
-        move_single(grasp, q_r_down, "P2 · Right → grasp",
-                    ee_task=task_r, tasks=tasks_r, gripper_val=255.0,
-                    pos_thr=0.010, ori_thr=0.12, timeout_secs=12.0, **r())
+            _, rq = snapshot_joints(data)
+            actuate_grippers(model, data, rate, viewer,
+                             lhq, rq, GRIPPER_OPEN, GRIPPER_CLOSED,
+                             160, "P3 - Right gripper closes")
+            lq, rq = snapshot_joints(data)
 
-        rq = data.qpos[9:16].copy()
-        actuate_grippers(model, data, rate, viewer,
-                         lhq, rq, 255.0, 0.0, 160, "P3 · Right gripper closes to establish a firm grasp")
-        rq = data.qpos[9:16].copy()
+        def lift_and_handover():
+            """P4-P10b: Lift, reorient, handover to left arm."""
+            nonlocal lq, rq
 
-        # P4-P5: right CLOSED. Pass frozen_grip_val=255.0 to keep left open by default.
-        # gripper_val=0.0 controls RIGHT (active arm) set to CLOSED
-        move_single(lift, q_r_down, "P4 · Right lifts cube",
-                    ee_task=task_r, tasks=tasks_r,
-                    gripper_val=0.0,
-                    pos_thr=0.015, ori_thr=0.18, timeout_secs=15.0, **r())
-        rq = data.qpos[9:16].copy()
+            # P4: Lift cube
+            ctx = right_ctx()
+            move_single(ctx, lift, q_r_down,
+                        "P4 - Right lifts cube",
+                        ee_task=task_r, tasks=tasks_r,
+                        gripper_val=GRIPPER_CLOSED,
+                        pos_thr=0.015, ori_thr=0.18, timeout_secs=15.0)
+            lq, rq = snapshot_joints(data)
 
-        move_single(lift, q_r_side, "P5a · Right wrist reorients to side-grip",
-                    ee_task=task_r, tasks=tasks_r,
-                    gripper_val=0.0,
-                    pos_thr=0.020, ori_thr=0.12,
-                    timeout_secs=15.0, damping=1e-2, **r())
-        rq = data.qpos[9:16].copy()
+            # P5a: Reorient wrist to side-grip
+            move_single(right_ctx(), lift, q_r_side,
+                        "P5a - Right reorients to side-grip",
+                        ee_task=task_r, tasks=tasks_r,
+                        gripper_val=GRIPPER_CLOSED,
+                        pos_thr=0.020, ori_thr=0.12,
+                        timeout_secs=15.0, damping=1e-2)
+            lq, rq = snapshot_joints(data)
 
-        move_single(handover_r, q_r_side, "P5b · Right moves to handover position",
-                    ee_task=task_r, tasks=tasks_r,
-                    gripper_val=0.0,
-                    pos_thr=0.012, ori_thr=0.18, timeout_secs=20.0, **r())
-        rq = data.qpos[9:16].copy()
+            # P5b: Move to handover position
+            move_single(right_ctx(), handover_r, q_r_side,
+                        "P5b - Right at handover position",
+                        ee_task=task_r, tasks=tasks_r,
+                        gripper_val=GRIPPER_CLOSED,
+                        pos_thr=0.012, ori_thr=0.18, timeout_secs=20.0)
+            lq, rq = snapshot_joints(data)
 
-        # P6-P7: LEFT moves, RIGHT frozen CLOSED → right_grip_val=0.0
-        move_single(left_far, q_l_side, "P6 · Left arm approaches (14cm)",
-                    ee_task=task_l, tasks=tasks_l,
-                    gripper_val=255.0,
-                    pos_thr=0.020, ori_thr=0.20, timeout_secs=18.0,
-                    **l(frz_r=rq, right_grip_val=0.0))
-        lq = data.qpos[0:7].copy()
+            # P6: Left arm far approach
+            move_single(left_ctx(rq), left_far, q_l_side,
+                        "P6 - Left arm approaches (14cm)",
+                        ee_task=task_l, tasks=tasks_l,
+                        pos_thr=0.020, ori_thr=0.20, timeout_secs=18.0)
+            lq, rq = snapshot_joints(data)
 
-        move_single(left_close, q_l_side, "P7 · Left → close (6cm)  [R:CLOSED]",
-                    ee_task=task_l, tasks=tasks_l,
-                    gripper_val=255.0,
-                    pos_thr=0.010, ori_thr=0.15, timeout_secs=12.0,
-                    **l(frz_r=rq, right_grip_val=0.0))
-        lq = data.qpos[0:7].copy()
+            # P7: Left arm close approach
+            move_single(left_ctx(rq), left_close, q_l_side,
+                        "P7 - Left at close position (6cm)",
+                        ee_task=task_l, tasks=tasks_l,
+                        pos_thr=0.010, ori_thr=0.15, timeout_secs=12.0)
+            lq, rq = snapshot_joints(data)
 
-        # P8: wait_for_left_grip (right hardcoded 0.0 inside function)
-        lq = wait_for_left_grip(
-            target_pos=left_grip_p,
-            contact_thr=CONTACT_THRESHOLD,
-            model=model, data=data, cfg=cfg,
-            task_l=task_l, site_l=site_l,
-            moc_l=moc_l, q_l_side=q_l_side,
-            moc_r=moc_r, q_r_side=q_r_side, handover_r=handover_r,
-            rq=rq, rate=rate, viewer=viewer,
-            timeout_secs=25.0
-        )
-        rq = data.qpos[9:16].copy()
+            # P8: Contact-aware grip transfer
+            lq = wait_for_left_grip(
+                left_ctx(rq), left_grip_p, CONTACT_THRESHOLD,
+                task_l, q_l_side,
+                moc_r, q_r_side, handover_r, rq,
+                timeout_secs=25.0)
+            _, rq = snapshot_joints(data)
 
-        # P9: FIRMLY close left. Use more steps and lower ctrl value for reinforcement
-        # Close left first with dedicated actuate call (200 steps)
-        actuate_grippers(model, data, rate, viewer,
-                         lq, rq, 0.0, 0.0, 300,
-                         "P9 · Synchronized clamping: both grippers close")
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+            # P9: Both grippers close
+            actuate_grippers(model, data, rate, viewer,
+                             lq, rq, GRIPPER_CLOSED, GRIPPER_CLOSED,
+                             300, "P9 - Synchronized clamping")
+            lq, rq = snapshot_joints(data)
 
-        # P9b: extra settle. Hold both grippers closed without arm motion
-        # Lets physics confirm left finger contact before right releases
-        for _ in range(120):
-            if not viewer.is_running(): break
-            data.ctrl[0:7]  = lq;  data.ctrl[7]  = 0.0   # left CLOSED
-            data.ctrl[8:15] = rq;  data.ctrl[15] = 0.0   # right CLOSED
-            mujoco.mj_step(model, data)
-            viewer.sync()
-            rate.sleep()
-        print("    ✓ Firm double grasp confirmed via physics step")
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+            # P9b: Settle to confirm firm double grasp
+            settle(model, data, rate, viewer, lq, rq,
+                   GRIPPER_CLOSED, GRIPPER_CLOSED,
+                   120, "P9b - Firm double grasp confirmed")
+            lq, rq = snapshot_joints(data)
 
-        # P10: right opens for the FIRST TIME since P3
-        actuate_grippers(model, data, rate, viewer,
-                         lq, rq, 0.0, 255.0, 120,
-                         "P10 · Right gripper opens (handover complete)")
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+            # P10a: Right gripper opens — handover complete
+            actuate_grippers(model, data, rate, viewer,
+                             lq, rq, GRIPPER_CLOSED, GRIPPER_OPEN,
+                             120, "P10a - Right gripper opens (handover complete)")
+            lq, rq = snapshot_joints(data)
 
-        # P10b: settle after right opens to confirm the left arm holds the cube alone
-        for _ in range(80):
-            if not viewer.is_running(): break
-            data.ctrl[0:7]  = lq;  data.ctrl[7]  = 0.0   # left CLOSED
-            data.ctrl[8:15] = rq;  data.ctrl[15] = 255.0  # right open
-            mujoco.mj_step(model, data)
-            viewer.sync()
-            rate.sleep()
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+            # P10b: Settle to confirm left holds cube alone
+            print("\n>>> P10b - Left holds cube alone")
+            settle(model, data, rate, viewer, lq, rq,
+                   GRIPPER_CLOSED, GRIPPER_OPEN, 80)
+            print("    done")
+            lq, rq = snapshot_joints(data)
 
-        # P11a: Left moves SIDEWAYS first at the same height, with no vertical change
-        move_single(carry_away, q_l_side, "P11a · Left arm moves sideways at constant height (prevents inertial slip)",
-                    ee_task=task_l, tasks=tasks_l,
-                    gripper_val=0.0,
-                    pos_thr=0.012, ori_thr=0.20, timeout_secs=12.0,
-                    damping=5e-2,
-                    **l(frz_r=rq, right_grip_val=255.0))
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+        def carry_and_place():
+            """P11-P17: Left carries cube to table and places it."""
+            nonlocal lq, rq
 
-        # P11b: Left lifts UP. Only Z changes now.
-        move_single(carry_up, q_l_side, "P11b · Left lifts up",
-                    ee_task=task_l, tasks=tasks_l,
-                    gripper_val=0.0,
-                    pos_thr=0.015, ori_thr=0.20, timeout_secs=15.0,
-                    damping=5e-2,
-                    **l(frz_r=rq, right_grip_val=255.0))
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+            # P11a: Pull back to create safe distance from right arm
+            left_now = data.site_xpos[site_l].copy()
+            pullback = np.array([left_now[0] - 0.08, left_now[1], left_now[2]])
+            move_single(left_ctx(rq, GRIPPER_OPEN), pullback, q_l_side,
+                        "P11a - Left pulls back from right arm",
+                        ee_task=task_l, tasks=tasks_l,
+                        gripper_val=GRIPPER_CLOSED,
+                        pos_thr=0.012, ori_thr=0.20,
+                        timeout_secs=8.0, damping=CARRY_DAMPING)
+            lq, rq = snapshot_joints(data)
 
-        # Read actual left EE position right now
-        left_now = data.site_xpos[site_l].copy()
+            # P11b: Smooth single move away from handover (diagonal)
+            carry_smooth(left_ctx(rq, GRIPPER_OPEN),
+                         waypoints=[carry_up],
+                         quat=q_l_side,
+                         label="P11b - Left moves away from handover",
+                         task=task_l,
+                         step_size=0.002, damping=CARRY_DAMPING, settle_steps=40)
+            lq, rq = snapshot_joints(data)
 
-        # Pure single-axis waypoints. One axis moves at a time.
-        # left_now is approx [-0.20, -0.15, hz+0.15] after carry_away
+            # P12: Right retreats while left holds the cube
+            move_single(right_ctx(frozen_vals=lq, frozen_grip_val=GRIPPER_CLOSED),
+                        right_retreat, q_r_down,
+                        "P12 - Right arm retreats",
+                        ee_task=task_r, tasks=tasks_r,
+                        gripper_val=GRIPPER_OPEN,
+                        pos_thr=0.030, ori_thr=0.30,
+                        timeout_secs=12.0, damping=1e-2)
+            lq, rq = snapshot_joints(data)
 
-        # WP1: Move Y forward toward table center (pure Y, same X and Z)
-        wp1 = np.array([left_now[0],   -0.40,          left_now[2]])
+            # P13: Smooth diagonal carry to above placement position
+            # Orientation SLERPs gradually from side-grip to top-down over
+            # hundreds of steps, keeping the cube secure throughout.
+            q_l_down = topdown_quat_for_site(model, data, "attachment_site_left")
+            carry_smooth(left_ctx(rq, GRIPPER_OPEN),
+                         waypoints=[above_place],
+                         quat=q_l_side, quat_end=q_l_down,
+                         label="P13 - Left carries cube above table",
+                         task=task_l,
+                         step_size=0.001, damping=8e-2, settle_steps=40)
+            lq, rq = snapshot_joints(data)
 
-        # WP2: Move X to align over table center (pure X, same Y and Z)
-        wp2 = np.array([-0.04,          -0.40,          left_now[2]])
+            # P14: Lower to final placement (mirrors grasp height)
+            move_single(left_ctx(rq, GRIPPER_OPEN), place_pos, q_l_down,
+                        "P14 - Left places cube on table",
+                        ee_task=task_l, tasks=tasks_l,
+                        gripper_val=GRIPPER_CLOSED,
+                        pos_thr=0.010, ori_thr=0.12, timeout_secs=12.0)
+            lq, rq = snapshot_joints(data)
 
-        # WP3: Lower Z to just above table surface (pure Z down)
-        wp3 = np.array([-0.04,          -0.40,          TABLE_TOP + CUBE_HALF + 0.005])
+            # P15: Settle on table
+            settle(model, data, rate, viewer, lq, rq,
+                   GRIPPER_CLOSED, GRIPPER_OPEN,
+                   200, "P15 - Cube settles on table")
+            lq, rq = snapshot_joints(data)
 
-        # P12: Right retreats while the left arm is FULLY FROZEN at current lq
-        # NEVER use **r() here. Passing r() uses lhq (home) as the frozen state, not the current lq
-        print("\n>>> P12 · Right arm retreats while the left arm remains fully frozen at its current joint state")
-        right_retreat_pos  = np.array([0.30, 0.20, 0.55])
-        data.mocap_pos[moc_r]  = right_retreat_pos
-        data.mocap_quat[moc_r] = q_r_down.copy()
-        mujoco.mj_forward(model, data)
-        task_r.set_target(mink.SE3.from_mocap_name(model, data, "target_right"))
-        t0 = data.time
-        while viewer.is_running():
-            data.mocap_pos[moc_r]  = right_retreat_pos
-            data.mocap_quat[moc_r] = q_r_down.copy()
-            task_r.set_target(mink.SE3.from_mocap_name(model, data, "target_right"))
+            # P17: Release cube
+            actuate_grippers(model, data, rate, viewer,
+                             lq, rq, GRIPPER_OPEN, GRIPPER_OPEN,
+                             160, "P17 - Left gripper opens (cube placed)")
+            lq, rq = snapshot_joints(data)
 
-            vel = mink.solve_ik(cfg, [task_r, task_p], rate.dt, "daqp", damping=1e-2)
-            cfg.integrate_inplace(vel, rate.dt)
+        def retreat():
+            """P18: Both arms return to home positions."""
+            nonlocal lq, rq
 
-            data.ctrl[RC]  = cfg.q[RQ]   # right arm moves
-            data.ctrl[RG]  = 255.0        # right open
-            data.ctrl[LC]  = lq           # left FROZEN at current (NOT lhq!)
-            data.ctrl[LG]  = 0.0          # left gripper CLOSED so the cube is held
+            # P18a: Pull back horizontally to clear the cube, then rise
+            left_now = data.site_xpos[site_l].copy()
+            away_pos  = np.array([left_now[0] - 0.08, left_now[1], left_now[2]])
+            clear_pos = np.array([left_now[0] - 0.08, left_now[1], TABLE_TOP + 0.35])
+            q_l_down = topdown_quat_for_site(model, data, "attachment_site_left")
+            move_single(left_ctx(rq, GRIPPER_OPEN), away_pos, q_l_down,
+                        "P18a - Left pulls away from cube",
+                        ee_task=task_l, tasks=tasks_l,
+                        pos_thr=0.012, ori_thr=0.20,
+                        timeout_secs=8.0, damping=1e-2)
+            lq, rq = snapshot_joints(data)
 
-            mujoco.mj_step(model, data)
-            data.ctrl[LG]  = 0.0          # clamp again after step
-            viewer.sync()
-            rate.sleep()
+            # P18b: Left arm returns to home position
+            move_single(left_ctx(rq, GRIPPER_OPEN), left_home_pos, q_l_down,
+                        "P18b - Left arm returns to home",
+                        ee_task=task_l, tasks=tasks_l,
+                        pos_thr=0.020, ori_thr=0.25,
+                        timeout_secs=15.0, damping=1e-2)
+            lq, rq = snapshot_joints(data)
 
-            pos_err = np.linalg.norm(data.site_xpos[site_r] - right_retreat_pos)
-            if pos_err <= 0.030:
-                print(f"    ✓ Right arm retreated (Pos error: {pos_err*1000:.1f}mm)")
-                break
-            if (data.time - t0) > 12.0:
-                print(f"    ⚠ Timeout: Right arm retreat (Pos error: {pos_err*1000:.1f}mm)")
-                break
+            # P19: Right arm returns to home position
+            move_single(right_ctx(frozen_vals=lq, frozen_grip_val=GRIPPER_OPEN),
+                        right_home_pos, q_r_down,
+                        "P19 - Right arm returns to home",
+                        ee_task=task_r, tasks=tasks_r,
+                        pos_thr=0.020, ori_thr=0.25,
+                        timeout_secs=15.0, damping=1e-2)
+            lq, rq = snapshot_joints(data)
 
-        rq = data.qpos[9:16].copy()
-        lq = data.qpos[0:7].copy()  # update lq after right moved
+        # ── Run all phases ────────────────────────────────────────────────
 
+        pick_cube()
+        lift_and_handover()
+        carry_and_place()
+        retreat()
 
-        # P13–P15: carry + place with 1mm steps, pure-axis path
-        carry_smooth(
-            waypoints=[wp1, wp2, wp3],
-            quat=q_l_side,
-            label="P13-15 · Left carry via smooth 1mm waypoint interpolation to table center",
-            model=model, data=data, cfg=cfg,
-            task=task_l, site_id=site_l,
-            mocap_id=moc_l, mocap_name="target_left",
-            active_ctrl=LC, active_qpos=LQ,
-            frozen_ctrl=RC, frozen_vals=rq,
-            active_grip=LG, frozen_grip=RG,
-            frozen_grip_val=255.0,
-            rate=rate, viewer=viewer,
-            step_size=0.001,       # 1mm steps for ultra smooth motion
-            damping=8e-2,          # very high damping
-            settle_steps=60        # longer settle at each waypoint
-        )
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
-
-        # P16: Settle down to transfer weight to the table
-        print("\n>>> P16 · Cube settles on table")
-        for _ in range(200):
-            if not viewer.is_running(): break
-            data.ctrl[0:7]  = lq;  data.ctrl[7]  = 0.0
-            data.ctrl[8:15] = rq;  data.ctrl[15] = 255.0
-            mujoco.mj_step(model, data)
-            viewer.sync()
-            rate.sleep()
-        print("    ✓ Placement stabilized")
-        lq = data.qpos[0:7].copy()
-
-        # P17: Open left gripper to release the cube
-        actuate_grippers(model, data, rate, viewer,
-                         lq, rq, 255.0, 255.0, 160,
-                         "P17 · Left gripper opens (cube placed)")
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
-
-        # P18: Left retreats to the LEFT side (negative X)
-        wp_up   = np.array([-0.04,  -0.40,   TABLE_TOP + 0.25])   # straight up first (same)
-        wp_back = np.array([-0.35,  -0.20,   TABLE_TOP + 0.25])   # ← negative X = LEFT side
-
-        carry_smooth(
-            waypoints=[wp_up, wp_back],
-            quat=q_l_side,
-            label="P18 · Left arm retreats",
-            model=model, data=data, cfg=cfg,
-            task=task_l, site_id=site_l,
-            mocap_id=moc_l, mocap_name="target_left",
-            active_ctrl=LC, active_qpos=LQ,
-            frozen_ctrl=RC, frozen_vals=rq,
-            active_grip=LG, frozen_grip=RG,
-            frozen_grip_val=255.0,
-            rate=rate, viewer=viewer,
-            step_size=0.003,       # Can go faster since there is no cube
-            damping=1e-2,
-            settle_steps=20
-        )
-
-
+        # Hold final pose
         print("\n=== DEMO COMPLETE, Press Ctrl+C to quit ===")
-        lq = data.qpos[0:7].copy()
-        rq = data.qpos[9:16].copy()
+        lq, rq = snapshot_joints(data)
         while viewer.is_running():
-            data.ctrl[0:7]  = lq;  data.ctrl[7]  = 0.0
-            data.ctrl[8:15] = rq;  data.ctrl[15] = 255.0
+            data.ctrl[LEFT_CTRL]  = lq
+            data.ctrl[LEFT_GRIP]  = GRIPPER_OPEN
+            data.ctrl[RIGHT_CTRL] = rq
+            data.ctrl[RIGHT_GRIP] = GRIPPER_OPEN
             mujoco.mj_step(model, data)
             viewer.sync()
             rate.sleep()

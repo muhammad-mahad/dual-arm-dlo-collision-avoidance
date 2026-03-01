@@ -807,12 +807,14 @@ code {
 
 /* ═══════════════════ TECH STACK ═══════════════════ */
 .tech-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 
 .tech-card {
+  width: calc(33.333% - 14px);
   padding: 28px 24px;
   border-radius: 16px;
   background: var(--bg-card);
@@ -1108,8 +1110,8 @@ code {
   .diagram-ring-mid   { width: 150px; height: 150px; }
   .diagram-ring-inner { width: 80px;  height: 80px;  }
 
-  .tech-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .tech-card {
+    width: calc(50% - 10px);
   }
 
   .footer-grid {
@@ -1160,8 +1162,8 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .tech-grid {
-    grid-template-columns: 1fr;
+  .tech-card {
+    width: 100%;
   }
 
   .timeline {

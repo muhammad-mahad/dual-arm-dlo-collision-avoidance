@@ -37,7 +37,7 @@ Organized by the five thesis pipeline steps.
 - Authors: Alessio Caporali, Piotr Kicki, Kevin Galassi, Riccardo Zanella, Krzysztof Walas, Gianluca Palli
 - Venue: IEEE RA-L, 2024
 - Code: [github.com/lar-unibo/dlo_manipulation_online_params](https://github.com/lar-unibo/dlo_manipulation_online_params)
-- Link: [doi.org/10.1109/LRA.2023.3346800](https://doi.org/10.1109/LRA.2023.3346800)
+- Link: [researchgate.net/publication/377640143](https://www.researchgate.net/publication/377640143_Deformable_Linear_Objects_Manipulation_with_Online_Model_Parameters_Estimation)
 - What it does: Neural network mimic of DLO dynamics conditioned on material parameters. Simultaneously estimates model parameters online via gradient-based optimization while performing shape control.
 - Relevance: Key enabler for generalizing collision avoidance framework to different cable types without re-training.
 

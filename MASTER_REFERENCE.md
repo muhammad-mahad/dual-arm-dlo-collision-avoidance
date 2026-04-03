@@ -56,7 +56,7 @@ Organized by the five thesis pipeline steps.
 **Robotic Perception and Manipulation of Deformable Linear Objects: A Survey**
 - Authors: Caporali, Galassi, et al. (University of Bologna)
 - Venue: International Journal of Robotics Research (IJRR), first published online March 27, 2026
-- Link: [doi.org/10.1177/02783649251329748](https://doi.org/10.1177/02783649251329748)
+- Link: [doi.org/10.1177/02783649251329748](https://journals.sagepub.com/doi/epdf/10.1177/02783649261432253)
 - Impact: IJRR is top robotics journal (IF ~9). Most up-to-date comprehensive DLO survey. Primary reference anchor.
 
 #### 1.5 Additional Perception & Estimation

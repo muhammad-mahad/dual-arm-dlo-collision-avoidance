@@ -47,7 +47,7 @@ Organized by the five thesis pipeline steps.
 - Authors: Alessio Caporali et al. (University of Bologna)
 - Venue: IEEE RA-L / IEEE Trans. Industrial Informatics, 2023
 - Code: [github.com/lar-unibo/RT-DLO](https://github.com/lar-unibo/RT-DLO)
-- Link: [doi.org/10.1109/LRA.2023.3266070](https://doi.org/10.1109/LRA.2023.3266070)
+- Link: [doi.org/10.1109/LRA.2023.3266070](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10045806)
 - What it does: >30 FPS instance segmentation of DLOs using skeleton-based graph approach on semantic masks. No assumptions about background or number of DLOs.
 - Relevance: 2D perception front-end for dual-arm camera system.
 

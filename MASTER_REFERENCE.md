@@ -921,7 +921,7 @@ Not peer-reviewed. Included for awareness only, not for formal citation.
 
 **FoAR -- Force-Aware Reactive Policy (RA-L 2025)**
 - Authors: Alan He et al.
-- Link: [doi.org/10.1109/LRA.2025.3527451](https://doi.org/10.1109/LRA.2025.3527451)
+- Link: [arxiv.org/abs/2411.15753](https://arxiv.org/abs/2411.15753)
 - Code: [github.com/Alan-Heoooh/FoAR](https://github.com/Alan-Heoooh/FoAR)
 - What it does: F/T + vision fusion, contact predictor, CPU-runnable inference for reactive insertion correction.
 
@@ -943,7 +943,7 @@ Not peer-reviewed. Included for awareness only, not for formal citation.
 **Berkenkamp et al. -- "Bayesian Optimization with Safety Constraints: Safe and Automatic Parameter Tuning in Robotics"**
 - Authors: Felix Berkenkamp, Andreas Krause, Angela P. Schoellig
 - Venue: IEEE ICRA (originally 2016), extended journal version
-- Link: [arxiv.org/abs/1509.01066](https://arxiv.org/abs/1509.01066)
+- Link: [arxiv.org/abs/1602.04450](https://arxiv.org/abs/1602.04450)
 - What it does: Bayesian Optimization that finds optimal controller parameters while guaranteeing no unsafe evaluation. GP model ensures safety constraints (e.g., force limits) are never exceeded during exploration. Starts from known-safe conservative parameters, then explores better parameters safely. Needs only 20-30 evaluations. CPU-only. Proven on real Franka Panda.
 - Relevance: For AIC, use after CMA-ES to refine impedance parameters with guaranteed force safety. Directly applicable to per-state impedance tuning.
 

@@ -1100,41 +1100,42 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **Safety Guaranteed Manipulation Based on RL Planner and MPC Actor**
 - Authors: Bing et al. (TUM)
 - Venue: 2023
-- Link: [doi.org/10.1109/ICRA48891.2023.10161196](https://doi.org/10.1109/ICRA48891.2023.10161196)
+- Link: [arxiv.org/abs/2304.09119](https://arxiv.org/abs/2304.09119)
 - What it does: Combines RL planner with MPC actor for safety-guaranteed manipulation.
 
 **Online Efficient Safety-Critical Control for Mobile Robots in Unknown Dynamic Multi-Obstacle Environments**
 - Authors: Bing et al. (TUM)
 - Venue: IEEE/RSJ IROS 2024
-- Link: [doi.org/10.1109/IROS58592.2024.10802565](https://doi.org/10.1109/IROS58592.2024.10802565)
+- Link: [arxiv.org/abs/2402.16449](https://arxiv.org/abs/2402.16449)
 - What it does: Online efficient safety-critical control in unknown dynamic environments with multiple obstacles.
 
 ### E.4 Tactile & Imitation Learning (TUM)
 
 **1 kHz Behavior Tree for Self-Adaptable Tactile Insertion**
 - Venue: IEEE ICRA 2024
-- Link: [doi.org/10.1109/ICRA57147.2024.10611564](https://doi.org/10.1109/ICRA57147.2024.10611564)
+- Link: [10.1109/ICRA57147.2024.10610835](https://frankiewoo.github.io/publication/wu-2024-icra/wu-2024-icra.pdf)
 - What it does: High-frequency (1 kHz) behavior tree for self-adaptable tactile insertion tasks.
 
 **Task-Based Compliance Control for Bottle Screw Manipulation with Dual-Arm Robot**
 - Venue: 2023
-- Link: [doi.org/10.1109/CASE56687.2023.10260620](https://doi.org/10.1109/CASE56687.2023.10260620)
+- Link: [10.1109/TIE.2023.3260342](https://mediatum.ub.tum.de/doc/1703739/document.pdf)
 - What it does: Task-based compliance control for contact-rich bottle screw manipulation using dual-arm robot.
 
 **TacDiffusion**
 - Venue: IEEE ICRA 2025
-- Link: [arxiv.org/abs/2403.05024](https://arxiv.org/abs/2403.05024)
+- Link: [arxiv.org/abs/2409.11047](https://arxiv.org/abs/2409.11047)
+- Github: [popnut123/TacDiffusion](https://github.com/popnut123/TacDiffusion
 - What it does: Diffusion-based tactile policy for manipulation tasks.
 
 **LEMMo-Plan: LLM-Enhanced Learning from Multi-Modal Demonstration**
 - Venue: IEEE ICRA 2025
-- Link: [arxiv.org/abs/2311.02318](https://arxiv.org/abs/2311.02318)
+- Link: [lemmo-plan.github.io/LEMMo-Plan/](https://lemmo-plan.github.io/LEMMo-Plan/)
 - What it does: LLM-enhanced learning from multi-modal demonstrations for robotic manipulation.
 
 **Long-Horizon Language-Conditioned Imitation Learning for Robotic Manipulation**
 - Authors: Bing et al. (TUM)
 - Venue: 2025
-- Link: [arxiv.org/abs/2501.09400](https://arxiv.org/abs/2501.09400)
+- Link: [10.1109/TMECH.2025.3547047](https://ieeexplore.ieee.org/abstract/document/10934975)
 - What it does: Long-horizon language-conditioned imitation learning for complex manipulation sequences.
 
 ### E.5 Planning & Scheduling (TUM)
@@ -1142,7 +1143,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **Ontology Based AI Planning and Scheduling for Robotic Assembly**
 - Authors: Bing et al. (TUM)
 - Venue: IEEE/RSJ IROS 2024
-- Link: [doi.org/10.1109/IROS58592.2024.10801863](https://doi.org/10.1109/IROS58592.2024.10801863)
+- Link: [10.1109/IROS58592.2024.10802295](https://ieeexplore.ieee.org/document/10802295)
 - What it does: Ontology-based AI planning and scheduling for robotic assembly tasks.
 
 ---
@@ -1156,7 +1157,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **Robotic Manipulation of Deformable Linear Objects: A Survey**
 - Authors: Yu, Li
 - Venue: ROBOT (Chinese Journal of Robotics), 2024
-- Link: [doi.org/10.13973/j.cnki.robot.240139](https://doi.org/10.13973/j.cnki.robot.240139)
+- Link: [10.13973/j.cnki.robot.240139](https://robot.sia.cn/en/article/doi/10.13973/j.cnki.robot.240139)
 - What it does: Chinese-language survey on robotic DLO manipulation.
 
 **Modeling, Learning, Perception, and Control for Deformable Object Manipulation**
@@ -1171,13 +1172,13 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 
 **A Survey on Robotic Manipulation of Deformable Objects**
 - Venue: IEEE Transactions on Industrial Informatics, 2024
-- Link: [doi.org/10.1109/TII.2023.3343463](https://doi.org/10.1109/TII.2023.3343463)
+- Link: [arxiv.org/abs/2312.10419](https://arxiv.org/abs/2312.10419)
 - What it does: Reviews 150+ papers on all deformable object types, with a DLO-specific section covering shape estimation, modeling, and task-level planning. High-impact survey in IEEE T-II (Q1).
 - Relevance: Background reference for introduction and related work chapters covering deformable object manipulation broadly.
 
 **Deformable and Fragile Object Manipulation: A Review and Prospects**
 - Venue: Sensors (MDPI), 2025
-- Link: [doi.org/10.3390/s25030920](https://doi.org/10.3390/s25030920)
+- Link: [doi.org/10.3390/s25175430](https://www.mdpi.com/1424-8220/25/17/5430)
 - What it does: Perception-to-control pipeline review with DLO-specific sections covering recent deep learning integration methods and sensor fusion strategies for deformable and fragile object manipulation.
 - Relevance: Additional survey covering sensor fusion and perception aspects of DLO manipulation relevant to Stage 1 of thesis.
 
@@ -1190,20 +1191,20 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **LLM-Driven Symbolic Planning and Hierarchical Imitation Learning for DLO Manipulation**
 - Authors: PolyU Group (Navarro-Alarcón group)
 - Venue: Robotics and Computer-Integrated Manufacturing, accepted January 2026
-- Link: [doi.org/10.1016/j.rcim.2026.102942](https://doi.org/10.1016/j.rcim.2026.102942)
+- Link: [doi.org/10.1016/j.rcim.2025.103096](https://www.sciencedirect.com/science/article/abs/pii/S0736584525001504)
 - What it does: Uses large language models to generate task-level symbolic plans for DLO manipulation, combined with low-level imitation controllers. Represents the emerging paradigm of high-level task decomposition for cable routing.
 - Relevance: LLM-guided planning for DLO manipulation — potential direction for Stage 3 global planning with natural language specification of routing tasks.
 
 **Cooperative Manipulation Control with Task-Prioritized Real-Time Optimization for Free-Floating Dual-Arm Space Robots**
 - Authors: Su, Shi et al.
 - Venue: Aerospace Science and Technology, 2025/2026
-- Link: [doi.org/10.1016/j.ast.2025.110089](https://doi.org/10.1016/j.ast.2025.110089)
+- Link: [doi.org/10.1016/j.ast.2025.111584](https://www.sciencedirect.com/science/article/abs/pii/S1270963825016487)
 - What it does: Hierarchical Quadratic Programming (HQP) framework for dual-arm space robots handling internal wrench limits and self-collision constraints simultaneously. HQP architecture where collision avoidance is a lower-priority task below primary task-space tracking.
 - Relevance: HQP design pattern directly applicable to thesis — collision avoidance as lower-priority task in the shape control hierarchy.
 
 **Robust Optical Transceiver Manipulation in Cluttered Cable Environments**
 - Venue: IEEE ICRA, 2025
-- Link: [doi.org/10.1109/ICRA57147.2025.10610382](https://doi.org/10.1109/ICRA57147.2025.10610382)
+- Link: [10.1109/ICRA55743.2025.11127450](https://ieeexplore.ieee.org/document/11127450)
 - What it does: Addresses cable-routing problems from the grasp-point perspective in environments cluttered with other cables — relevant to fixture-dense environments of automotive wire harness assembly.
 - Relevance: Demonstrates robustness requirements for manipulation in cable-cluttered environments — motivates robust collision avoidance for industrial DLO setups.
 
@@ -1212,7 +1213,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **Robotic Manipulation Planning for Shaping DLOs with Environmental Contacts**
 - Authors: Zhu et al.
 - Venue: 2019
-- Link: [doi.org/10.1109/ICRA.2019.8794334](https://doi.org/10.1109/ICRA.2019.8794334)
+- Link: [10.1109/LRA.2019.2944304](https://ieeexplore.ieee.org/document/8851170)
 - What it does: Early work on manipulation planning for DLOs using environmental contacts for shaping.
 
 **Manipulating Deformable Objects by Interleaving Prediction, Planning, and Control**
@@ -1228,7 +1229,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **Extending MoveIt with Advanced Manipulation Functions for Industrial Applications**
 - Authors: Pablomalvido et al.
 - Venue: 2023
-- Link: [doi.org/10.1109/CASE56687.2023.10260449](https://doi.org/10.1109/CASE56687.2023.10260449)
+- Link: [doi.org/10.1016/j.rcim.2023.102559](https://www.sciencedirect.com/science/article/pii/S0736584523000352)
 - Code: [github.com/pablomalvido/Advanced_manipulation_moveit](https://github.com/pablomalvido/Advanced_manipulation_moveit)
 - What it does: MoveIt extensions for advanced manipulation including synchronized motion and ATC.
 
@@ -1241,7 +1242,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 
 **SceneSmith: Agentic Generation of Simulation-Ready Indoor Scenes**
 - Authors: Pfaff et al.
-- Link: [arxiv.org/abs/2504.02337](https://arxiv.org/abs/2504.02337)
+- Link: [scenesmith.github.io](https://scenesmith.github.io/)
 - Code: [github.com/nepfaff/scenesmith](https://github.com/nepfaff/scenesmith)
 - What it does: Agentic generation of simulation-ready indoor scenes for robotics.
 
@@ -1255,7 +1256,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 **PyRoki: A Modular Toolkit for Robot Kinematic Optimization**
 - Authors: Kim et al.
 - Venue: 2025
-- Link: [arxiv.org/abs/2505.05543](https://arxiv.org/abs/2505.05543)
+- Link: [pyroki-toolkit.github.io](https://pyroki-toolkit.github.io/)
 - Code: [github.com/chungmin99/pyroki](https://github.com/chungmin99/pyroki)
 - What it does: JAX-based modular toolkit for robot kinematic optimization and differentiable IK.
 

@@ -889,7 +889,7 @@ Not peer-reviewed. Included for awareness only, not for formal citation.
 ### B.6 Compliant Insertion / Manipulation Funnels
 
 **Chen et al. -- "Robust Peg-in-Hole via Compliant Funnel-based Manipulation" (RSS 2025)**
-- Link: [roboticsproceedings.org/rss21](https://roboticsproceedings.org/rss21/)
+- Link: [roboticsproceedings.org/rss21/p060.html](https://roboticsproceedings.org/rss21/p060.html)
 - What it does: Manipulation funnels using contact-inclusive planning to iteratively localize hole and refine insertion -- learning-free. Works on NIST Assembly Task Board with tight tolerances. Generalizes across shapes/materials.
 
 ### B.7 Cable Connector Mating

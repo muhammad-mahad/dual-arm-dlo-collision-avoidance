@@ -908,7 +908,7 @@ Not peer-reviewed. Included for awareness only, not for formal citation.
 ### B.9 Iterative Reference Learning
 
 **Salt-Ducaju et al. -- "Iterative Reference Learning for Insertion" (IROS 2024)**
-- Link: [doi.org/10.1109/IROS58592.2024.10802668](https://doi.org/10.1109/IROS58592.2024.10802668)
+- Link: [10.1109/IROS58592.2024.10801796](https://ieeexplore.ieee.org/document/10801796)
 - What it does: Franka Panda completes peg-in-hole by iteratively updating Cartesian reference trajectory -- converges in 3 iterations. No NN, no GPU, no RL. Pure control theory. Algorithm is single matrix update.
 
 ### B.10 Safe RL with Force Limits

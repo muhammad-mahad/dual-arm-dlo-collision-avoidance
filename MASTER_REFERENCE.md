@@ -1278,7 +1278,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 |------|------------|
 | [Mingrui-Yu/arm_planning](https://github.com/Mingrui-Yu/arm_planning) | Sampling-based robotic arm planning |
 | [lar-unibo/DLO_MultiView_Tracking](https://github.com/lar-unibo/DLO_MultiView_Tracking) | Cosserat rod multiview DLO tracking |
-| [qj25/der_mujoco](https://github.com/qj25/der_mujoco) | Discrete Elastic Rods in MuJoCo |
+| [qj25/adapteddlo_muj](https://github.com/qj25/adapteddlo_muj) | Discrete Elastic Rods in MuJoCo |
 | [roahmlab.github.io/DEFORM/](https://roahmlab.github.io/DEFORM/) | Differentiable DER project page |
 | [tan-liam/CableRouting](https://github.com/tan-liam/CableRouting) | Multi-stage cable routing (T-RO paper) |
 | [Mingrui-Yu/DLO_following](https://github.com/Mingrui-Yu/DLO_following) | In-hand DLO following — IROS 2024 |
@@ -1290,8 +1290,6 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 | Repo | What It Has |
 |------|------------|
 | [Badenhoop/chair_manipulation](https://github.com/Badenhoop/chair_manipulation) | Dual-arm chair manipulation |
-| [Debojit-D/Dual_Arm_Manipulation](https://github.com/Debojit-D/Dual_Arm_Manipulation) | Addverb + IIT Gandhinagar dual-arm system |
-| [AKS-Lab-University-of-Tartu/bimanual_manipulation](https://github.com/AKS-Lab-University-of-Tartu/bimanual_manipulation) | Tartu bimanual tasks |
 | [fiveages-sim/arms_ros2_control](https://github.com/fiveages-sim/arms_ros2_control) | ROS2-control for single/dual arm |
 | [robotcourse1/ros2-openarm-project](https://github.com/robotcourse1/ros2-openarm-project) | OpenArm dual-arm pipeline |
 | [moveit/moveit2_tutorials](https://github.com/moveit/moveit2_tutorials) | Dual Arms MoveIt 2 tutorial configuration |
@@ -1314,7 +1312,7 @@ Papers from the TUM group directly relevant to the thesis setup and advisor alig
 | [Simple-Robotics/aligator](https://github.com/Simple-Robotics/aligator) | Constrained trajectory optimization |
 | [google-deepmind/mujoco_menagerie](https://github.com/google-deepmind/mujoco_menagerie) | High-quality MuJoCo robot models |
 | [vikashplus/franka_sim](https://github.com/vikashplus/franka_sim) | Franka Panda hardware-tested MJCF models |
-| OMPL (Open Motion Planning Library) | Standard ROS motion planning library |
+| [OMPL](https://ompl.kavrakilab.org/) (Open Motion Planning Library) | Standard ROS motion planning library |
 | [volunt4s/Simple-MuJoCo-PickNPlace](https://github.com/volunt4s/Simple-MuJoCo-PickNPlace) | Single-Arm Pick & Place Tutorial |
 | [kevinzakka/mink](https://github.com/kevinzakka/mink) | Task-space IK library |
 

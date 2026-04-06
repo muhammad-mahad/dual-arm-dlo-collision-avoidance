@@ -584,7 +584,7 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 **Representing Robot Geometry as Distance Fields: Applications to Whole-Body Manipulation**
 - Authors: Y. Li, Y. Zhang, A. Razmjoo, S. Calinon (IDIAP)
 - Venue: IEEE ICRA 2024, pp. 15351-15357
-- Link: [doi.org/10.1109/ICRA57147.2024.10610661](https://doi.org/10.1109/ICRA57147.2024.10610661)
+- Link: [10.1109/ICRA57147.2024.10611674](https://ieeexplore.ieee.org/document/10611674)
 - Code: Available via Calinon lab
 - What it does: Robot Signed Distance Field (RDF) using Bernstein polynomials for articulated kinematic chains. Differentiable and smooth in joint space. Directly usable as collision constraints in optimization. Dual-arm lifting experiment.
 - Relevance: Mathematical tool for formulating collision avoidance as differentiable constraint in control optimization.
@@ -601,7 +601,7 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 **Safe, Task-Consistent Manipulation with Operational Space Control Barrier Functions (OSCBF)**
 - Authors: Daniel Morton, Marco Pavone (Stanford)
 - Venue: IEEE ICRA 2025 + open-source release
-- Link: [arxiv.org/abs/2409.13025](https://arxiv.org/abs/2409.13025)
+- Link: [arxiv.org/abs/2409.13025](https://arxiv.org/pdf/2503.06736)
 - Code: [github.com/StanfordASL/oscbf](https://github.com/StanfordASL/oscbf) (CBFpy library)
 - What it does: Integrates CBFs into Operational Space Control hierarchy. Scales to 168 simultaneous constraints at >1000 Hz. Prevents task performance degradation at safety boundaries. Handles self-collision, joint limits, workspace, and dynamic obstacles simultaneously.
 - Relevance: **Most complete CBF implementation for robot manipulators.** CBFpy library can directly implement inter-arm and DLO collision constraints.
@@ -609,7 +609,7 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 **GP-P-HOCBF: Learning-Based Parameterized Barrier Function for Safety-Critical Control**
 - Authors: Yu Zhang, Zhenshan Bing, Alois Knoll et al. (TUM)
 - Venue: IEEE Robotics and Automation Letters / IEEE T-ASE, published December 2024 — TUM portal DOI available
-- Link: [arxiv.org/abs/2402.18946](https://arxiv.org/abs/2402.18946)
+- Link: [10.1109/CDC56724.2024.10886097](https://mediatum.ub.tum.de/doc/1754101/brkbbejup4ecny2er2n5h4did.GP-P-HOCBF-final.pdf)
 - What it does: Gaussian Process regression predicts unknown disturbances and parametrically shrinks the safe set in proportion to the GP prediction error bound. Validated on Franka Emika manipulator. Provides safety guarantees under model uncertainty.
 - Relevance: TUM thesis supervisor group's published safety framework — natural building block for thesis collision avoidance controller. Combines GP uncertainty estimation with high-order CBF constraints (different from the separate T-ASE 2025 GP-CBF entry below).
 
@@ -648,7 +648,7 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 **Collaborative Manipulation of Deformable Objects with Predictive Obstacle Avoidance**
 - Authors: Aksoy, Wen
 - Venue: IEEE ICRA, 2024
-- Link: [doi.org/10.1109/ICRA57147.2024.10610516](https://doi.org/10.1109/ICRA57147.2024.10610516)
+- Link: [arxiv.org/abs/2401.16560](https://www.john-wen.com/publications/collaborative-manipulation-deformable-objects-predictive-obstacle-avoidance)
 - What it does: Collaborative deformable object manipulation with predictive obstacle avoidance.
 
 **Planning and Control for Deformable Linear Object Manipulation**
@@ -724,14 +724,14 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 **Adaptive Safety-Critical Control for High-Order Systems: A Real-Time Gaussian Process Approach**
 - Authors: Yu Zhang, Long Wen, Zhenshan Bing, Yao, Kong, Wei He, Alois Knoll (TUM)
 - Venue: IEEE T-ASE, 2025
-- Link: [doi.org/10.1109/TASE.2024.3451659](https://doi.org/10.1109/TASE.2024.3451659)
+- Link: [10.1109/TASE.2025.3611987](https://ieeexplore.ieee.org/document/11173605)
 - What it does: GP-based estimation of model uncertainties + high-order CBF constraints. Safety guarantees under model uncertainty.
 - Relevance: TUM group (who built thesis hardware setup) applies safety-critical control -- strong alignment.
 
 **Robust Dual-Filter Safety Control for Mobile Robots in Dynamic Multiobstacle Environments**
 - Authors: Yu Zhang, Linghuan Kong, Xinbo Yu, Wei He, Alois Knoll (TUM)
 - Venue: IEEE/ASME T-Mechatronics, Vol. 30, No. 6, pp. 1-12, December 2025
-- Link: [doi.org/10.1109/TMECH.2025.3527861](https://doi.org/10.1109/TMECH.2025.3527861)
+- Link: [10.1109/TMECH.2024.3521038](https://ieeexplore.ieee.org/document/10838340)
 - What it does: Dual-filter architecture: fast saliency detection filter (1st) + D-CBF activation filter (2nd). Reduces unnecessary CBF computations while maintaining real-time safety in dynamic multi-obstacle scenarios.
 - Relevance: Dual-filter concept transferable to dual-arm cable routing where fixture obstacles are known but cable state adds dynamic uncertainty.
 

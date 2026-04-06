@@ -187,13 +187,13 @@ Organized by the five thesis pipeline steps.
 **Shape Control of Elastic Deformable Linear Objects for Robotic Cable Assembly**
 - Authors: Bin Cao, Xizhe Zang, Xuehe Zhang, Zhuo Chen, Shouqiang Li, Jie Zhao
 - Venue: Advanced Intelligent Systems, Vol. 6, No. 7, 2024
-- Link: [doi.org/10.1002/aisy.202300648](https://doi.org/10.1002/aisy.202300648)
+- Link: [doi.org/10.1002/aisy.202300835](https://advanced.onlinelibrary.wiley.com/doi/10.1002/aisy.202300835)
 - What it does: GNN global model with visual feedback for 3D shape control. IPOPT interior-point solver for MPC. Validated on aircraft assembly.
 
 **Offline-Online Learning with GNN for Cable Manipulation**
 - Authors: C. Wang et al.
 - Venue: IEEE RA-L, Vol. 7, No. 2, pp. 5544-5551, April 2022 (referenced in 2024-2026 works)
-- Link: [doi.org/10.1109/LRA.2022.3152698](https://doi.org/10.1109/LRA.2022.3152698)
+- Link: [10.1109/LRA.2022.3158376](https://ieeexplore.ieee.org/document/9732674)
 - Code: github.com/Mingrui-Yu/shape_control_DLO_2 (Yu et al. T-RO version)
 
 #### 2.2 Additional Data-Driven Models
@@ -201,7 +201,7 @@ Organized by the five thesis pipeline steps.
 **Rearranging Deformable Linear Objects for Implicit Goals with Self-Supervised Planning and Control**
 - Authors: Huo et al.
 - Venue: Advanced Intelligent Systems, 2024
-- Link: [doi.org/10.1002/aisy.202400049](https://doi.org/10.1002/aisy.202400049)
+- Link: [doi.org/10.1002/aisy.202400330](https://advanced.onlinelibrary.wiley.com/doi/full/10.1002/aisy.202400330)
 - What it does: Self-supervised planning and control for DLO rearrangement toward implicit goals.
 
 #### 2.3 Data-Driven: Adaptive Online Learning
@@ -209,7 +209,7 @@ Organized by the five thesis pipeline steps.
 **Global Model Learning for Large Deformation Control of Elastic DLOs: An Efficient and Adaptive Approach**
 - Authors: Mingrui Yu, Kangchen Lv, Hanzhong Zhong, Shiji Song, Xiang Li
 - Venue: IEEE T-RO, Vol. 39, No. 1, pp. 417-436, Feb 2023
-- Link: [doi.org/10.1109/TRO.2022.3210921](https://doi.org/10.1109/TRO.2022.3210921)
+- Link: [10.1109/TRO.2022.3200546](https://ieeexplore.ieee.org/document/9888782)
 - Code: [github.com/Mingrui-Yu/shape_control_DLO_2](https://github.com/Mingrui-Yu/shape_control_DLO_2)
 - What it does: Coupled offline-online neural network for global deformation model. Lyapunov-stable controller. Handles untrained DLOs via online adaptation. 24 tasks with different DLOs in real world.
 - Relevance: Gold-standard model learning baseline.
@@ -219,7 +219,7 @@ Organized by the five thesis pipeline steps.
 **Controlling Deformable Objects with Nonnegligible Dynamics: A Shape-Regulation Approach to End-Point Positioning**
 - Authors: Sebastien Tiburzio, Tomas Coleman, Daniel Feliu-Talegon, Cosimo Della Santina (TU Delft + DLR)
 - Venue: IEEE T-RO, Vol. 41, pp. 6213-6228, 2025
-- Link: [doi.org/10.1109/TRO.2024.3510949](https://doi.org/10.1109/TRO.2024.3510949)
+- Link: [10.1109/TRO.2025.3620806](https://ieeexplore.ieee.org/document/11202387)
 - What it does: Strain-based functional parameterization for DLO dynamics with nonnegligible inertial effects. Fully model-based with analytically proven closed-loop stability. Validated on 6 cables.
 - Relevance: Addresses key limitation of quasi-static assumptions in most DLO controllers. Critical for high-speed cable routing.
 
@@ -253,14 +253,14 @@ Organized by the five thesis pipeline steps.
 **Parametric Modeling of Deformable Linear Objects for Robotic Outfitting and Maintenance of Space Systems**
 - Authors: Quartaro, Pöhlmann et al.
 - Venue: Frontiers in Robotics and AI, 2025
-- Link: [doi.org/10.3389/frobt.2025.1521947](https://doi.org/10.3389/frobt.2025.1521947)
+- Link: [pubmed.ncbi.nlm.nih.gov/40799461](https://pmc.ncbi.nlm.nih.gov/articles/PMC12340519/)
 - What it does: Energy-based DLO model accounting for non-zero bend equilibrium (important for pre-bent cables in industry). Parameter estimation validated on UR10e robot. Directly applicable to modeling industrial cable types with complex resting shapes.
 - Relevance: Extends standard straight-equilibrium models to cables with pre-formed shapes — common in automotive wire harness routing.
 
 **Online Iterative Learning Enhanced Sim-to-Real Transfer for Efficient Deformable Object Manipulation**
 - Authors: Chen et al. (different from TUM Chen)
 - Venue: Machine Intelligence Research (Springer), Vol. 22, No. 4, pp. 696–712, 2025
-- Link: [doi.org/10.1007/s11633-024-1548-x](https://doi.org/10.1007/s11633-024-1548-x)
+- Link: [doi.org/10.1007/s11633-025-1566-0](https://link.springer.com/article/10.1007/s11633-025-1566-0)
 - What it does: Iterative Parameter Projection (IPP) method that eliminates need for large-scale training data and demonstrates superior performance over LQR, SMC, and MPC baselines on real deformable manipulation. Published online iterative learning approach for adapting DLO models to real-robot deployment.
 - Relevance: Sim-to-real transfer methodology directly applicable for adapting DLO models to real-robot deployment (Gap 5 of thesis).
 
@@ -288,7 +288,7 @@ Organized by the five thesis pipeline steps.
 **Generalizable Whole-Body Global Manipulation of Deformable Linear Objects by Dual-Arm Robot in 3-D Constrained Environments**
 - Authors: Mingrui Yu, Kangchen Lv, Changhao Wang, Masayoshi Tomizuka, Yun-Hui Liu, Xiang Li
 - Venue: IJRR, 2024
-- Link: [doi.org/10.1177/02783649231225313](https://doi.org/10.1177/02783649231225313)
+- Link: [doi.org/10.1177/02783649241276886](dl.acm.org/doi/10.1177/02783649241276886)
 - Code: [github.com/Mingrui-Yu/DLO_planning_2](https://github.com/Mingrui-Yu/DLO_planning_2) (C++ + ROS Noetic + Unity simulator)
 - What it does: Whole-body planning treating both robot arms and DLO as unified state. Energy-based DLO model for coarse planning plus local closed-loop correction. Handles 3D environments with obstacles, fixtures, joint limits.
 - Relevance: **Most complete published system closest to thesis target.** Extend by adding explicit inter-robot, robot-DLO, and DLO-environment collision avoidance constraints into planner.
@@ -307,9 +307,8 @@ Organized by the five thesis pipeline steps.
 - Link: [10.1109/ICRA46639.2022.9811765](https://ieeexplore.ieee.org/document/9811765)
 - What it does: Extends whole-body planning framework to cable routing tasks with fixture contacts.
 
-**Planning and Control for Cable-routing with
-Dual-arm Robot**
-- Link: [https://odr.chalmers.se/179cb0c7-fd27-4fe7-aa88-908e777db1ca](https://odr.chalmers.se/server/api/core/bitstreams/179cb0c7-fd27-4fe7-aa88-908e777db1ca/content
+**Planning and Control for Cable-routing with Dual-arm Robot**
+- Link: [https://odr.chalmers.se/179cb0c7-fd27-4fe7-aa88-908e777db1ca](https://odr.chalmers.se/server/api/core/bitstreams/179cb0c7-fd27-4fe7-aa88-908e777db1ca/content)
 
 #### 3.2 Additional Dual-Arm DLO Planning
 
@@ -322,7 +321,7 @@ Dual-arm Robot**
 **An Optimization-Based Motion Planner for Dual-Arm Manipulation of Soft DLOs**
 - Authors: Wu et al.
 - Venue: Advanced Engineering Informatics, 2024
-- Link: [doi.org/10.1016/j.aei.2024.102463](https://doi.org/10.1016/j.aei.2024.102463)
+- Link: [doi.org/10.1016/j.aei.2024.102874](https://www.sciencedirect.com/science/article/abs/pii/S1474034624005226)
 - What it does: Optimization-based motion planner specifically for dual-arm soft DLO manipulation.
 
 **Robotic Cable Routing with Spatial Representation**
@@ -360,7 +359,7 @@ Dual-arm Robot**
 
 **Flexible Informed Trees (FIT*): Adaptive Batch-Size Sampling-Based Planner**
 - Venue: IEEE/RSJ IROS 2023
-- Link: [doi.org/10.1109/IROS55552.2023.10342098](https://doi.org/10.1109/IROS55552.2023.10342098)
+- Link: [arxiv.org/abs/2310.12828](https://arxiv.org/abs/2310.12828)
 - What it does: Adaptive batch-size sampling-based planner extending informed trees family.
 
 **Dual-Arm Whole-Body Motion Planning: Leveraging Overlapping Kinematic Chains**
@@ -379,7 +378,7 @@ Dual-arm Robot**
 
 **Automatic Cable Routing Based on Improved Pathfinding Algorithm with B-Spline Optimization**
 - Venue: Journal of Computational Design and Engineering, Vol. 11, No. 4, 2024
-- Link: [doi.org/10.1093/jcde/qwae060](https://doi.org/10.1093/jcde/qwae060)
+- Link: [10.1093/jcde/qwae085](https://scholarworks.bwise.kr/kumoh/bitstream/2020.sw.kumoh/29066/1/Automatic%20cable%20routing%20based%20on%20improved%20pathfinding.pdf)
 - What it does: Integrates JPS-Theta* pathfinding with Ant Colony Optimization (ACO) and B-spline shape optimization for collision-free cable routing. High-impact published work on path-planning side of cable routing with direct industrial application.
 - Relevance: Provides a published planning backbone for cable routing through fixture arrays with optimized smooth trajectories.
 
@@ -393,7 +392,7 @@ Dual-arm Robot**
 **Sampling-Based Motion Planning: A Comparative Review**
 - Authors: Orthey et al.
 - Venue: Journal of Field Robotics, 2024
-- Link: [doi.org/10.1002/rob.22374](https://doi.org/10.1002/rob.22374)
+- Link: [doi.org/10.1146/annurev-control-061623-094742](https://www.annualreviews.org/content/journals/10.1146/annurev-control-061623-094742)
 - What it does: Compares 10+ sampling-based planners across manipulation benchmarks, providing rigorous basis for planner selection in high-dimensional dual-arm spaces.
 - Relevance: Essential reference for justifying choice of sampling-based planner in high-dimensional DLO configuration space.
 
@@ -406,7 +405,7 @@ Dual-arm Robot**
 **In-Hand Following of Deformable Linear Objects Using Dexterous Fingers with Tactile Sensing**
 - Authors: Mingrui Yu et al.
 - Venue: IEEE/RSJ IROS 2024 (oral, top 12%)
-- Link: [doi.org/10.1109/IROS58592.2024.10802447](https://doi.org/10.1109/IROS58592.2024.10802447)
+- Link: [arXiv:2403.12676]([https://doi.org/10.1109/IROS58592.2024.10802447](https://deformable-workshop.github.io/icra2024/spotlight/01_08_wdo_yu_inhand.pdf))
 - Code: [github.com/Mingrui-Yu/DLO_following](https://github.com/Mingrui-Yu/DLO_following)
 - What it does: Extends DLO planning to dexterous in-hand re-grasping along the DLO while following a cable, using tactile sensing and inverse kinematics.
 - Relevance: Complementary planning capability for wire harness routing with re-grasping. Code directly usable.
@@ -426,7 +425,7 @@ Dual-arm Robot**
 **Perception and Planning for Dual-Arm Multi-Branch Wire Harness Manipulation**
 - Authors: Malvido Fresnillo et al. (Lund University)
 - Venue: ELLIIT Focus Period Technical Report, 2025
-- Link: [scholar.google.com/scholar?q=Malvido+Fresnillo+Dual-Arm+Wire+Harness+Manipulation+ELLIIT+2025](https://scholar.google.com/scholar?q=Malvido+Fresnillo+Dual-Arm+Wire+Harness+Manipulation+ELLIIT+2025)
+- Link: [urn.fi/URN:ISBN:978-952-03-4065-0](https://researchportal.tuni.fi/en/publications/perception-and-planning-for-dual-arm-robotic-manipulation-of-mult/)
 - What it does: Complete perception-to-planning pipeline for multi-branch DLO scenarios combining RGB-D perception, B-spline DLO modeling, and MoveIt2-based motion planning. Addresses multiple DLOs in close proximity — directly matching industrial wire harness scenarios.
 - Relevance: DLO-DLO collision avoidance when handling multiple cables simultaneously is explicitly mentioned as an open problem.
 
@@ -457,7 +456,7 @@ Dual-arm Robot**
 **Learning-Based MPC with Safety Filter for Constrained Deformable Linear Object Manipulation**
 - Authors: Yuchen Tang, Xinghao Chu, Jianzhong Huang, K.W. Samuel Au
 - Venue: IEEE RA-L, Vol. 9, No. 3, pp. 2877-2884, March 2024
-- Link: [doi.org/10.1109/LRA.2024.3349915](https://doi.org/10.1109/LRA.2024.3349915)
+- Link: [10.1109/LRA.2024.3362643](https://ieeexplore.ieee.org/abstract/document/10423099)
 - What it does: Combines learning-based predictive model (DLO state prediction) with CBF-based safety filter as MPC constraint. Safety filter explicitly enforces collision avoidance at control level. Tested in cluttered environments.
 - Relevance: **Most important paper for Step 4+5 integration.** First to unify learning-based DLO control with rigorous safety filter. Extend to dual-arm with inter-robot constraints.
 - **Gap:** Safety filter only handles static obstacles; dynamic obstacles and DLO-fixture contact collisions not addressed.
@@ -484,24 +483,25 @@ Authors: Jiyoung Choi, Micheale Haileslassie Gebrezgiher, Donggun Lee, Ayoung Ho
 **Enabling Versatility and Dexterity of Dual-Arm Manipulators: A General Framework Toward Universal Cooperative Manipulation**
 - Authors: TUM Researchers
 - Venue: IEEE T-RO, 2024
-- Link: [doi.org/10.1109/TRO.2024.3378677](https://doi.org/10.1109/TRO.2024.3378677)
+- Link: [10.1109/TRO.2024.3370048](https://ieeexplore.ieee.org/document/10449470)
 - What it does: General framework for universal cooperative manipulation with dual-arm manipulators.
 
 **A Dual-Arm Robotic System for Automated Multi-Branch Wire Harness Assembly**
 - Authors: Fresnillo et al.
 - Venue: Journal of Manufacturing Systems, 2025
-- Link: [doi.org/10.1016/j.jmsy.2025.02.008](https://doi.org/10.1016/j.jmsy.2025.02.008)
+- Link: [doi.org/10.1016/j.jmsy.2025.10.008](https://www.sciencedirect.com/science/article/pii/S0278612525002547)
 - What it does: Dual-arm system for automated multi-branch wire harness assembly in industrial settings.
 
 **Strategic Algorithm for Cable Wiring Using Dual Arm with Compliance Control**
 - Venue: Robotics and Computer-Integrated Manufacturing, 2024
-- Link: [doi.org/10.1016/j.rcim.2023.102628](https://doi.org/10.1016/j.rcim.2023.102628)
+- Link: [doi.org/10.1016/j.rcim.2024.102924](https://www.sciencedirect.com/science/article/abs/pii/S0736584524002114)
 - What it does: Strategic algorithm combining dual-arm coordination with compliance control for cable wiring tasks.
 
 **Predictive Multi-Agent-Based Planning for Reactive Dual-Arm Manipulation**
 - Authors: Laha, Haddadin et al.
 - Venue: IEEE T-RO, 2024
-- Link: [doi.org/10.1109/TRO.2024.3387002](https://doi.org/10.1109/TRO.2024.3387002)
+- Link: [10.1109/TRO.2023.3341689](https://ieeexplore.ieee.org/document/10354340)
+- Github: [riddhiman13/predictive-multi-agent-framework](https://github.com/riddhiman13/predictive-multi-agent-framework)
 - What it does: Predictive multi-agent planning for reactive dual-arm manipulation tasks.
 
 #### 4.5 Compliance and Contact-Aware Control
@@ -509,14 +509,14 @@ Authors: Jiyoung Choi, Micheale Haileslassie Gebrezgiher, Donggun Lee, Ayoung Ho
 **Contact-Aware Shaping and Maintenance of Deformable Linear Objects With Fixtures**
 - Authors: Kejia Chen, Zhenshan Bing, Fan Wu, Yuan Meng, Andre Kraft, Sami Haddadin, Alois Knoll (TUM)
 - Venue: IEEE/RSJ IROS 2023
-- Link: [doi.org/10.1109/IROS55552.2023.10342296](https://doi.org/10.1109/IROS55552.2023.10342296)
+- Link: [10.1109/IROS55552.2023.10341726](https://deformable-workshop.github.io/icra2023/spotlight/10-CHEN-spotlight.pdf)
 - What it does: Uses contact constraints from environmental fixtures to assist DLO shaping. Models multi-stage contact process (cable approaching clip -> clip forced open -> cable secured). Real-time contact state estimation.
 - Relevance: **Founding paper of thesis setup.** The 2024-2026 work builds on and extends this framework.
 
 **Real-Time Contact State Estimation in Shape Control of DLOs Under Small Environmental Constraints**
 - Authors: Chen et al. (TUM)
 - Venue: IEEE ICRA 2024
-- Link: [doi.org/10.1109/ICRA57147.2024.10610520](https://doi.org/10.1109/ICRA57147.2024.10610520)
+- Link: [arxiv.org/abs/2401.17154](https://arxiv.org/abs/2401.17154)
 - What it does: Real-time estimation of contact states during DLO shape control under environmental constraints.
 
 **Multi-Robot Assembly of Deformable Linear Objects Using Multi-Modal Perception**
@@ -530,26 +530,26 @@ Authors: Jiyoung Choi, Micheale Haileslassie Gebrezgiher, Donggun Lee, Ayoung Ho
 **Image-Based Visual Servoing for Enhanced Cooperation of Dual-Arm Manipulation**
 - Authors: Zhang, Yang et al.
 - Venue: IEEE Robotics and Automation Letters, accepted February 2025
-- Link: [doi.org/10.1109/LRA.2025.3540693](https://doi.org/10.1109/LRA.2025.3540693)
+- Link: [10.1109/LRA.2025.3543137](https://ieeexplore.ieee.org/document/10891400)
 - What it does: IBVS control law specifically for dual-arm cooperation where each arm tracks the other's wrist marker using on-board camera. Derives passivity-based control handling closed-chain kinematics of both arms and proves Lyapunov asymptotic stability. Designed for rigid object co-manipulation but synchronization framework transfers directly to DLO endpoint coordination layer.
 - Relevance: Proven stability framework for dual-arm coordination in DLO shape control where both arms must remain synchronized throughout cable routing.
 
 **Obstacle Avoidance Shape Control of Deformable Linear Objects with Differentiable Simulation**
 - Venue: IEEE Robotics and Automation Letters, 2024 (DOAJ indexed)
-- Link: [doi.org/10.1109/LRA.2024.3401979](https://doi.org/10.1109/LRA.2024.3401979)
+- Link: [10.1186/s40648-024-00283-1](https://link.springer.com/article/10.1186/s40648-024-00283-1)
 - What it does: Integrates differentiable Position-Based Dynamics (PBD) simulation into a shape controller, enabling gradient-based shape control that naturally avoids obstacles through the differentiable collision layer. The only published paper besides Tang et al. that handles DLO-obstacle avoidance within the shape control loop itself — but simulation-only.
 - Relevance: Demonstrates feasibility of embedding obstacle avoidance into DLO shape control gradient. Thesis extends this to a real dual-arm system with all four collision pairs.
 - Gap: Simulation-only; does not handle arm–arm or arm–env collisions.
 
 **Cable Shaping with MPC: A Reliable, Fast, and Real-Time Feasible Formulation**
 - Venue: IEEE Conference on Control Applications (CCA), 2024
-- Link: [doi.org/10.1109/CCA62066.2024.10662395](https://doi.org/10.1109/CCA62066.2024.10662395)
+- Link: [doi.org/10.1016/j.ifacol.2024.10.254](https://www.sciencedirect.com/science/article/pii/S2405896324020299)
 - What it does: Reformulated DLO shape MPC that guarantees real-time feasibility through constraint tightening and warm-starting. Addresses DLO shape control feasibility in cluttered environments with tight constraints.
 - Relevance: MPC feasibility guarantees — directly applicable to ensuring thesis CBF-MPC integration remains feasible during cable routing.
 
 **Manipulation of Deformable Linear Objects Using Model Predictive Control**
 - Venue: SCITEPRESS (ICINCO Proceedings), 2025
-- Link: [doi.org/10.5220/0013329900003822](https://doi.org/10.5220/0013329900003822)
+- Link: [10.5220/0013703800003982](https://www.scitepress.org/Papers/2025/137038/137038.pdf)
 - What it does: MPC controller for DLO manipulation in simulation, comparing different MPC horizons and constraint formulations for shape accuracy and obstacle avoidance feasibility.
 - Relevance: Comparative benchmark for MPC horizon and constraint design choices in DLO shape control.
 

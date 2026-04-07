@@ -145,6 +145,13 @@ Organized by the five thesis pipeline steps.
 - What it does: Tracks DLO 3D shape from multiple standard 2D cameras (no depth sensors) using model-based optimization. Unlike TrackDLO, works with cheaper standard cameras — directly relevant for industrial setups where depth sensors are impractical near fixtures.
 - Relevance: Multi-view tracker for TUM dual-arm cable routing setup where depth sensors may be occluded by robot arms during fixture mounting phases. Monitor for formal RA-L publication.
 
+**Estimating Force Interactions of Deformable Linear Objects from their Shapes**
+- Authors: Qi Jing Chen, Shilin Shan, Timothy Bretl, Quang-Cuong Pham
+- Venue: arXiv:2602.01085, February 2026
+- Link: [arxiv.org/abs/2602.01085](https://arxiv.org/abs/2602.01085)
+- What it does: Analytical method to detect and estimate external forces acting on deformable wires by observing their shapes. Enables safer robot-wire manipulation without force-torque sensors.
+- Relevance: Force estimation from DLO shape complements collision avoidance — force anomalies signal unexpected contact (DLO-fixture or DLO-arm collision), enabling reactive avoidance without dedicated tactile sensors.
+
 #### Step 1 Summary
 
 | Paper | Venue | Year | Code | Key Contribution |
@@ -429,6 +436,34 @@ Organized by the five thesis pipeline steps.
 - What it does: Complete perception-to-planning pipeline for multi-branch DLO scenarios combining RGB-D perception, B-spline DLO modeling, and MoveIt2-based motion planning. Addresses multiple DLOs in close proximity — directly matching industrial wire harness scenarios.
 - Relevance: DLO-DLO collision avoidance when handling multiple cables simultaneously is explicitly mentioned as an open problem.
 
+**MOTORCYCLE 1.0: Automating Bimanual Cable Routing Around Fixtures on the NIST Task Board**
+- Authors: Osher Azulay, Kavish Kondap, Jaimyn Drake, Shuangyu Xie, Hui Li, Sachin Chitta, Ken Goldberg (Berkeley Autolab)
+- Venue: IEEE CASE 2025, Los Angeles, August 2025
+- Link: [autolab.berkeley.edu/assets/publications/media/CASE_2025_MOTORCYCLE_1_0_CAMREADY.pdf](https://autolab.berkeley.edu/assets/publications/media/CASE_2025_MOTORCYCLE_1_0_CAMREADY.pdf)
+- What it does: Integrates a learned cable tracer with bimanual sliding-based motion planning to route cables around fixtures while dynamically managing slack. Achieves 84% success on a modified NIST Task Board.
+- Relevance: Direct competitor work for cable routing around fixtures with bimanual robot — closest published analog to thesis task.
+
+**Hierarchical DLO Routing with Reinforcement Learning and In-Context Vision-Language Models**
+- Authors: Mingen Li, Houjian Yu, Yixuan Huang, Youngjin Hong, Changhyun Choi
+- Venue: arXiv:2510.19268, October 2025
+- Link: [arxiv.org/abs/2510.19268](https://arxiv.org/abs/2510.19268)
+- What it does: Combines VLMs for high-level planning with RL-learned skills to enable long-horizon cable/rope routing across diverse scenes guided by language instructions.
+- Relevance: Alternative RL+VLM approach to multi-stage cable routing; provides comparison baseline for learning-based vs. model-based planning strategies.
+
+**Spatial-Temporal Graph Diffusion Policy with Kinematic Modeling for Bimanual Robotic Manipulation (KStar Diffuser)**
+- Authors: Qi Lv, Hao Li, Xiang Deng, Rui Shao, Yinchuan Li, Jianye Hao, Longxiang Gao, Michael Yu Wang, Liqiang Nie
+- Venue: CVPR 2025
+- Link: [arxiv.org/abs/2503.10743](https://arxiv.org/abs/2503.10743)
+- What it does: Diffusion policy maintaining a dynamic spatial-temporal graph of bimanual joint motions with differentiable kinematics regularization to produce collision-free, kinematically-consistent action predictions.
+- Relevance: State-of-the-art bimanual manipulation with built-in collision awareness — provides imitation learning baseline for dual-arm DLO routing.
+
+**Toward Generalist Neural Motion Planners for Robotic Manipulators: Challenges and Opportunities**
+- Authors: Davood Soleymanzadeh, Ivan Lopez-Sanchez, Hao Su, Yunzhu Li, Xiao Liang, Minghui Zheng
+- Venue: IEEE Transactions on Automation Science and Engineering, Vol. 23, 2026
+- Link: [arxiv.org/abs/2603.24318](https://arxiv.org/abs/2603.24318)
+- What it does: Survey of neural motion planning approaches for robotic manipulators, analyzing limitations and charting directions toward generalist planners for diverse real-world scenarios.
+- Relevance: Most recent (2026) survey on neural motion planning; provides context for thesis global planner design choices.
+
 #### Step 3 Summary
 
 | Paper | Venue | Year | Code | Key |
@@ -553,6 +588,27 @@ Authors: Jiyoung Choi, Micheale Haileslassie Gebrezgiher, Donggun Lee, Ayoung Ho
 - What it does: MPC controller for DLO manipulation in simulation, comparing different MPC horizons and constraint formulations for shape accuracy and obstacle avoidance feasibility.
 - Relevance: Comparative benchmark for MPC horizon and constraint design choices in DLO shape control.
 
+**Movement Primitive Diffusion: Learning Gentle Robotic Manipulation of Deformable Objects**
+- Authors: Paul Maria Scheikl, Nicolas Schreiber, Christoph Haas, Niklas Freymuth, Gerhard Neumann, Rudolf Lioutikov, Franziska Mathis-Ullrich
+- Venue: IEEE Robotics and Automation Letters, 2024
+- Link: [arxiv.org/abs/2312.10008](https://arxiv.org/abs/2312.10008)
+- What it does: Combines diffusion-based imitation learning with dynamic movement primitives (ProDMP) to enable data-efficient, gentle robotic handling of deformable objects. Avoids excessive force during manipulation, validated in surgical tissue handling context.
+- Relevance: Diffusion policy baseline for learning DLO routing from demonstrations; gentle manipulation objective aligns with avoiding cable over-tension during routing.
+
+**DA-VIL: Adaptive Dual-Arm Manipulation with Reinforcement Learning and Variable Impedance Control**
+- Authors: Md Faizal Karim, Shreya Bollimuntha, Mohammed Saad Hashmi, Autrio Das, Gaurav Singh, Srinath Sridhar, Arun Kumar Singh, Nagamanikandan Govindan, K Madhava Krishna
+- Venue: arXiv:2410.19712, October 2024
+- Link: [arxiv.org/abs/2410.19712](https://arxiv.org/abs/2410.19712)
+- What it does: Combines RL with gradient-based optimization to dynamically adapt impedance control gains for dual-arm coordination across objects of varying mass and geometry.
+- Relevance: Variable impedance for dual-arm coordination directly applicable to cable routing where stiffness of the DLO changes as it is routed around different fixtures.
+
+**FABRICA: Dual-Arm Assembly of General Multi-Part Objects via Integrated Planning and Learning**
+- Authors: Yunsheng Tian, Joshua Jacob, Yijiang Huang, Jialiang Zhao, Edward Gu, Pingchuan Ma, Annan Zhang, Farhad Javid, Branden Romero, Sachin Chitta, Hui Li, Wojciech Matusik (MIT CSAIL)
+- Venue: CoRL 2025 (Best Paper Award)
+- Link: [arxiv.org/abs/2506.05168](https://arxiv.org/abs/2506.05168)
+- What it does: First system for complete generalizable real-world multi-part assembly without domain knowledge or demonstrations. Combines hierarchical planning with RL policies guided by equivariance and residual actions.
+- Relevance: CoRL 2025 Best Paper for dual-arm multi-part assembly — sets SOTA benchmark for generalizable bimanual assembly tasks closely related to wire harness routing.
+
 #### Step 4 Summary
 
 | Paper | Venue | Year | Key |
@@ -565,6 +621,9 @@ Authors: Jiyoung Choi, Micheale Haileslassie Gebrezgiher, Donggun Lee, Ayoung Ho
 | Obstacle Avoidance DLO (Diff. Sim.) | IEEE RA-L | 2024 | Differentiable PBD shape ctrl + obstacle (sim only) |
 | Cable MPC feasibility (CCA 2024) | IEEE CCA | 2024 | Real-time feasible DLO shape MPC |
 | DLO MPC (SCITEPRESS 2025) | SCITEPRESS | 2025 | MPC horizon comparison for DLO control |
+| Movement Primitive Diffusion | IEEE RA-L | 2024 | Diffusion + DMP for gentle deformable manipulation |
+| DA-VIL | arXiv | 2024 | RL + variable impedance for dual-arm coordination |
+| FABRICA | CoRL | 2025 | Best Paper: generalizable dual-arm multi-part assembly |
 
 ---
 
@@ -694,6 +753,34 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 - Link: [doi.org/10.1109/ICRA57147.2024.10610785](https://doi.org/10.1109/ICRA57147.2024.10610785)
 - What it does: CBF-induced neural controller for efficient manipulator motion planning.
 
+**GCBF+: A Neural Graph Control Barrier Function Framework for Distributed Safe Multi-Agent Control**
+- Authors: Songyuan Zhang, Oswin So, Kunal Garg, Chuchu Fan (MIT)
+- Venue: IEEE Transactions on Robotics, 2025
+- Link: [arxiv.org/abs/2401.14554](https://arxiv.org/abs/2401.14554)
+- What it does: Uses graph neural networks to parameterize safety certificates (graph CBFs), enabling scalable, provably-safe collision-free coordination of large multi-agent systems in a distributed manner.
+- Relevance: Graph-CBF approach scales to many simultaneous constraints — applicable to the high-constraint dual-arm DLO setting where hundreds of arm-link/DLO-node collision pairs must be handled simultaneously.
+
+**Robot Reinforcement Learning on the Constraint Manifold (ATACOM)**
+- Authors: Puze Liu, Davide Tateo, Haitham Bou-Ammar, Jan Peters (TU Darmstadt)
+- Venue: CoRL 2021 (Proceedings of the 5th Conference on Robot Learning, PMLR 2022)
+- Link: [proceedings.mlr.press/v164/liu22c/liu22c.pdf](https://proceedings.mlr.press/v164/liu22c/liu22c.pdf)
+- What it does: Reformulates constrained safe RL as unconstrained exploration on the tangent space of a constraint manifold, guaranteeing safety for any model-free RL algorithm without requiring an initial safe policy.
+- Relevance: Alternative to CBF-QP for enforcing safety during RL-based DLO control. Guarantees safety throughout training, not just at deployment.
+
+**Safe Reinforcement Learning on the Constraint Manifold: Theory and Applications (ATACOM-TRO)**
+- Authors: Puze Liu, Haitham Bou-Ammar, Jan Peters, Davide Tateo (TU Darmstadt)
+- Venue: IEEE Transactions on Robotics, 2024
+- Link: [arxiv.org/abs/2404.09080](https://arxiv.org/abs/2404.09080)
+- What it does: Extends ATACOM with formal differential geometry theory to construct provably-safe action spaces on constraint manifolds. Demonstrated on a real-world robot air hockey task requiring high-speed safe motion.
+- Relevance: Full theoretical treatment of constraint manifold safe RL — direct extension of CoRL 2021 paper with formal proofs and real-robot validation.
+
+**Safety-Critical Control for Robotic Manipulators using Collision Cone Control Barrier Functions**
+- Authors: Lucas Almeida
+- Venue: arXiv:2503.00623, March 2025
+- Link: [arxiv.org/abs/2503.00623](https://arxiv.org/abs/2503.00623)
+- What it does: Merges collision cone geometry with CBFs into a QP-integrated impedance control framework for safe real-time robotic manipulator operation.
+- Relevance: Collision cone CBF provides tighter, directional safety constraints than sphere-based CBFs — reduces conservatism in narrow passages around fixtures.
+
 #### 5.6 Dual-Arm Collision Avoidance (Additional)
 
 **A Real-Time Collision Avoidance Method for Redundant Dual-Arm Robots in an Open Operational Environment**
@@ -797,6 +884,10 @@ This is the core thesis contribution area. Four collision pairs: (a) robot-envir
 | Robust Sampled-Data Safety | IEEE T-ASE | 2025 | All types | Discrete-time safety guarantees | -- |
 | Cooperative CA (Robotica) | Robotica | 2024 | Inter-arm | APF formal guarantees n-DOF | -- |
 | Dual-Arm Peg-in-Hole RCIM | RCIM | 2025 | Inter-arm | CDS+VIVF cooperative | -- |
+| GCBF+ (Zhang et al.) | IEEE T-RO | 2025 | Multi-agent | Graph-neural CBF, scalable distributed | -- |
+| ATACOM (Liu et al.) | CoRL | 2021 | All types | Safe RL on constraint manifold | -- |
+| ATACOM-TRO (Liu et al.) | IEEE T-RO | 2024 | All types | Formal theory + real-robot air hockey | -- |
+| Collision Cone CBF (Almeida) | arXiv | 2025 | Robot-env | Directional cone CBF + impedance | -- |
 
 ---
 
@@ -821,6 +912,15 @@ Not peer-reviewed. Included for awareness only, not for formal citation.
 | Hierarchical Deformation Planning + Neural Tracking | -- | [2512.24974](https://arxiv.org/abs/2512.24974) (Dec 2025) | Hierarchical DLO deformation planning with neural tracking; submitted IEEE T-RO |
 | Certifiably Safe DLO Manipulation via Zonotopes | -- | [2505.13889](https://arxiv.org/abs/2505.13889) (May 2025) | Formal safety certificates for DLO manipulation using zonotope methods |
 | CoFreeVLA: Collision-Free Vision-Language-Action Model | -- | [2601.21712](https://arxiv.org/abs/2601.21712) (Jan 2026) | VLA model with built-in collision-free guarantees; see Step 5.6 |
+| Estimating Force Interactions of DLOs from Shapes | Chen, Shan, Bretl, Pham | [2602.01085](https://arxiv.org/abs/2602.01085) (Feb 2026) | Force estimation from DLO shape without tactile sensors; see Step 1.6 |
+| Hierarchical DLO Routing with RL + VLMs | Li, Yu et al. | [2510.19268](https://arxiv.org/abs/2510.19268) (Oct 2025) | RL skills + VLM for long-horizon cable routing; see Step 3 |
+| DA-VIL: Dual-Arm RL + Variable Impedance | Karim et al. | [2410.19712](https://arxiv.org/abs/2410.19712) (Oct 2024) | RL-optimized impedance gains for dual-arm coordination; see Step 4 |
+| RMMI: Reactive Mobile Manipulation via Implicit Neural Map | Marticorena et al. | [2408.16206](https://arxiv.org/abs/2408.16206) (IROS 2025) | Neural SDF + QP reactive control for mobile manipulation; related background |
+| Local Reactive Control for Mobile Manipulators (Whole-Body Safety) | Zheng et al. | [2501.02815](https://arxiv.org/abs/2501.02815) (Jan 2025) | Augmented Lagrangian DDP for whole-body collision avoidance in cluttered envs |
+| Toward Generalist Neural Motion Planners Survey | Soleymanzadeh et al. | [2603.24318](https://arxiv.org/abs/2603.24318) (T-ASE 2026) | Survey on neural motion planning generalization; see Step 3 |
+| KStar Diffuser: Spatial-Temporal Graph Diffusion Policy | Lv et al. | [2503.10743](https://arxiv.org/abs/2503.10743) (CVPR 2025) | Bimanual diffusion policy with kinematic collision avoidance; see Step 3 |
+| MOTORCYCLE 1.0: Bimanual Cable Routing NIST Board | Azulay et al. (Berkeley) | [PDF](https://autolab.berkeley.edu/assets/publications/media/CASE_2025_MOTORCYCLE_1_0_CAMREADY.pdf) (CASE 2025) | 84% success bimanual cable routing around fixtures; see Step 3 |
+| FABRICA: Dual-Arm Multi-Part Assembly | Tian et al. (MIT CSAIL) | [2506.05168](https://arxiv.org/abs/2506.05168) (CoRL 2025 Best Paper) | Generalizable dual-arm assembly via hierarchical planning + RL; see Step 4 |
 
 ---
 
